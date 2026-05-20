@@ -6,3 +6,6 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# COCA raw data
+.coca_raw/
