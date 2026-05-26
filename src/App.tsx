@@ -24,6 +24,7 @@ export default function App() {
   const [showKeypad, setShowKeypad] = useState(true);
   const [selectedPhoneme, setSelectedPhoneme] = useState<string | null>(null);
   const [mode, setMode] = useState<'spelling' | 'training'>('spelling');
+  const [wordCount, setWordCount] = useState(10);
 
   const phonemeStats = React.useMemo(() => getPhonemeStats(), []);
 
@@ -63,7 +64,7 @@ export default function App() {
 
   const currentWord = words[currentIndex];
 
-  const pickWordsForPractice = (diff: Difficulty, phoneme: string | null, count: number = 10): WordData[] => {
+  const pickWordsForPractice = (diff: Difficulty, phoneme: string | null, count: number): WordData[] => {
     if (phoneme) {
       const pool = getWordsByPhoneme(phoneme, diff);
       if (pool.length === 0) return [];
@@ -75,7 +76,7 @@ export default function App() {
 
   const changeDifficulty = (d: Difficulty) => {
     setDifficulty(d);
-    setWords(pickWordsForPractice(d, selectedPhoneme));
+    setWords(pickWordsForPractice(d, selectedPhoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
@@ -83,7 +84,7 @@ export default function App() {
   };
 
   const newWordSet = () => {
-    setWords(pickWordsForPractice(difficulty, selectedPhoneme));
+    setWords(pickWordsForPractice(difficulty, selectedPhoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
@@ -92,7 +93,7 @@ export default function App() {
 
   const handlePhonemeChange = (phoneme: string | null) => {
     setSelectedPhoneme(phoneme);
-    setWords(pickWordsForPractice(difficulty, phoneme));
+    setWords(pickWordsForPractice(difficulty, phoneme, wordCount));
     setCurrentIndex(0);
     setScore(0);
     setFeedback('neutral');
@@ -125,7 +126,7 @@ export default function App() {
     synth.speak(utterance);
   }, [currentWord, isPlaying, selectedVoice]);
 
-  // Keyboard shortcut: Space to replay audio in training mode
+  // Keyboard shortcuts for training mode: Space=replay, ←→=navigate
   useEffect(() => {
     if (mode !== 'training') return;
 
@@ -138,11 +139,19 @@ export default function App() {
         e.preventDefault();
         playAudio();
       }
+      if (e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextTrainingWord();
+      }
+      if (e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevTrainingWord();
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, playAudio]);
+  }, [mode, playAudio, currentIndex, words.length]);
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
@@ -186,6 +195,12 @@ export default function App() {
     } else {
       alert('本轮训练结束！');
       newWordSet();
+    }
+  };
+
+  const prevTrainingWord = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(prev => prev - 1);
     }
   };
 
@@ -311,6 +326,29 @@ export default function App() {
               </select>
               <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
             </div>
+          </div>
+
+          <div className="h-10 w-px bg-slate-100"></div>
+
+          {/* Word Count */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Words</span>
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={wordCount}
+              onChange={(e) => {
+                const v = Math.max(1, Math.min(50, parseInt(e.target.value) || 1));
+                setWordCount(v);
+                setWords(pickWordsForPractice(difficulty, selectedPhoneme, v));
+                setCurrentIndex(0);
+                setScore(0);
+                setFeedback('neutral');
+                setUserInput('');
+              }}
+              className="w-12 bg-slate-100 border-none rounded-lg px-1.5 py-1 text-[11px] text-slate-600 font-medium text-center focus:outline-none focus:ring-2 focus:ring-indigo-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            />
           </div>
 
           <div className="h-10 w-px bg-slate-100"></div>

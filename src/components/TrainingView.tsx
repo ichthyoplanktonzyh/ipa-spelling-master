@@ -94,9 +94,14 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
 
         {/* Bottom Footer */}
         <footer className="h-24 bg-white border-t border-slate-100 px-12 flex items-center justify-between shrink-0">
-          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
-            {currentIndex + 1} / {words.length}
-          </span>
+          <div className="flex items-center gap-4">
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
+              {currentIndex + 1} / {words.length}
+            </span>
+            <span className="text-[10px] text-slate-300 font-medium">
+              <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono text-[10px]">←→</kbd> Navigate
+            </span>
+          </div>
           <button
             onClick={onNext}
             className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
