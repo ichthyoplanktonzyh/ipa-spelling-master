@@ -37,6 +37,19 @@ ipa-spelling/
 
 ## 2. 目录职责
 
+### `.planning/codebase/`
+
+| 文件 | 职责 |
+|------|------|
+| `ARCHITECTURE.md` | 当前系统骨架、数据流、模块职责和架构边界 |
+| `DDD-ARCHITECTURE.md` | DDD 分析：统一语言、子域、限界上下文、聚合和演进分层 |
+| `STRUCTURE.md` | 代码库物理结构和新代码放置规则 |
+| `STACK.md` | 技术栈、依赖和构建命令 |
+| `CONVENTIONS.md` | 项目级代码约定 |
+| `DATA-MODEL.md` | 类型关系、身份策略和持久化语义 |
+| `TESTING.md` | 测试层次、当前覆盖和缺口 |
+| `CONCERNS.md` | 技术债、脆弱区域和风险 |
+
 ### `src/components/`
 
 | 文件 | 职责 | 依赖 |

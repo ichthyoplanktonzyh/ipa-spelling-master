@@ -17,7 +17,7 @@
 |------|------|
 | 已完成里程碑 | M0 (原始英语工具) → M1 (多语言架构) |
 | 当前里程碑 | M2 — 纯前端独立训练器 MVP |
-| 下一个 phase | 2.2 — Feedback & Session Results |
+| 下一个 phase | 2.2 — MVP Scope Triage |
 | 技术栈 | React 19 + TypeScript + Vite 6 + Tailwind 4 |
 | 架构模式 | LanguageProfile-driven SPA |
 | 发布策略 | MVP 纯前端静态部署，无账号、无数据库、无后端依赖 |
@@ -93,14 +93,15 @@ graph LR
 
 ## 7. M2 — 纯前端独立训练器 MVP
 
-> 状态：🚧 进行中。Phase 2.1 已完成（2026-07-02）。
+> 状态：🚧 进行中。Phase 2.1 已完成（2026-07-02），Phase 2.2 已新增为范围裁剪阶段。
 
 - **目标**：让用户无需 L1 诊断、无需账号、无需后端，也能独立完成一次有效训练会话，并可直接发布到公网。
 - **覆盖需求**：CORE-001 ~ CORE-005, ARCH-004, TRAIN-CORE-001 ~ TRAIN-CORE-005, FEED-001 ~ FEED-002, DATA-LOCAL-001, PLAT-STATIC-001
 - **主要 phase**：
   - ✅ 2.1 Standalone Training Core：独立训练入口、训练类型选择、目标语言/难度/主题选择（2026-07-02 完成）
-  - 🧭 2.2 Feedback & Session Results：nearMatch/diff 可视化、会话结果页、本地最近训练记录
-  - 2.3 Publish Readiness：静态部署检查、README/PRD 对齐、基础手动 QA 清单
+  - 🧭 2.2 MVP Scope Triage：明确必要需求、必要但不急、远期增强和伪需求
+  - 🧭 2.3 Feedback & Session Results：nearMatch/diff 可视化、会话结果页、本地最近训练记录
+  - 2.4 Publish Readiness：静态部署检查、README/PRD 对齐、基础手动 QA 清单
 - **交付物**：
   - 不依赖 L1 的训练入口
   - 听音拼写 + 看词听音两种完整训练会话

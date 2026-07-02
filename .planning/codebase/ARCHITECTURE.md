@@ -1,6 +1,7 @@
 # PhoneticMaster — 系统架构
 
 > 最后更新：2026-07-02
+> DDD 分析与目标分层见 `DDD-ARCHITECTURE.md`
 
 ## 1. 架构全景
 
@@ -146,6 +147,19 @@
 | Components ↔ Data | 组件不直接 import 词库；词库通过 profile.wordBank 访问 | 统一入口 |
 | voice.ts ↔ Profile | voice 函数接受 lang 参数（来自 profile.ttsLang） | 多语言 |
 | Frontend ↔ Backend | MVP 不依赖后端；未来云端能力通过 storage/provider 替换 | 静态发布与渐进扩展 |
+
+## 4.1 DDD 架构定位
+
+| 限界上下文 | 当前代表模块 | 说明 |
+|---|---|---|
+| Language Catalog | `profiles/*`, `data/*`, parser utils | 目标语言如何被训练 |
+| Training | `utils/trainingSession.ts`, `App.tsx` session state | 一轮训练如何开始、推进、完成 |
+| Feedback | `utils/judge.ts`, planned result models | 用户错在哪里、训练结果说明什么 |
+| Coaching | `l1/*`, `SmartRecommend.tsx` | L1-aware 推荐，不阻塞训练 |
+| Learner Progress | planned `storage.ts`, `recommendation.ts` | 本地历史和掌握度 |
+| Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |
+
+架构决策：Phase 2.3 Feedback & Session Results 应让 `TrainingSession` 和 `SessionResult` 成为明确模型，避免结果页和历史记录从临时 React state 拼接。
 
 ## 5. 已知架构债务
 

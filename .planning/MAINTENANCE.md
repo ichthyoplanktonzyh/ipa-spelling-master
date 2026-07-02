@@ -1,6 +1,6 @@
 # PhoneticMaster — 文档体系维护规则
 
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 > 基于 LLPlayerNext 的 GSD 文件结构体系，结合本项目实践制定
 
 ---
@@ -17,6 +17,7 @@
 | codebase 文件 | 更新频率 | 职责 | 语气 |
 |---|---|---|---|
 | `ARCHITECTURE.md` | 架构变化时 | 系统骨架：全景图、数据流、模块职责、边界 | 结构化 |
+| `DDD-ARCHITECTURE.md` | 领域边界变化时 | DDD 视角：统一语言、子域、限界上下文、聚合、演进分层 | 决策性 |
 | `STRUCTURE.md` | 文件增删时 | 代码库地图：目录树、新代码放哪 | 查询导向 |
 | `STACK.md` | 依赖变化时 | 技术栈清单：版本、用途、构建命令 | 参考 |
 | `CONVENTIONS.md` | 编码约定变化时 | 架构级规则：依赖方向、Profile 规范、数据格式 | 规范性 |
@@ -140,6 +141,7 @@ YYYY-MM-DD
 | 新增 L1×L2 映射 | STRUCTURE.md | DATA-MODEL.md |
 | 新增/升级依赖 | STACK.md | ARCHITECTURE.md |
 | 类型接口变化 | DATA-MODEL.md | ARCHITECTURE.md, CONVENTIONS.md |
+| 领域边界/聚合变化 | DDD-ARCHITECTURE.md | ARCHITECTURE.md, DATA-MODEL.md |
 | 发现技术债 | CONCERNS.md | — |
 | 解决技术债 | CONCERNS.md（删除条目） | 相关 codebase 文档 |
 | 新增测试 | TESTING.md | CONCERNS.md（更新覆盖缺口） |
@@ -194,6 +196,7 @@ YYYY-MM-DD
 ### 架构变化
 
 - [ ] 更新 `codebase/ARCHITECTURE.md`（模块依赖、数据流、边界）
+- [ ] 更新 `codebase/DDD-ARCHITECTURE.md`（领域边界、限界上下文、聚合）
 - [ ] 更新 `codebase/STRUCTURE.md`（新增文件/目录）
 - [ ] 更新 `codebase/STACK.md`（新增/替换依赖）
 - [ ] 更新 `codebase/DATA-MODEL.md`（类型变化、持久化变化）
@@ -214,10 +217,11 @@ YYYY-MM-DD
 ```
 1. STATE.md            ← 当前在哪？下一步做什么？
 2. ARCHITECTURE.md     ← 系统骨架是什么？模块怎么关联？
-3. STRUCTURE.md        ← 文件在哪？新代码放哪？
-4. STACK.md            ← 用了什么技术？怎么构建？
-5. DATA-MODEL.md       ← 核心类型长什么样？怎么存的？
-6. 按需深入 →
+3. DDD-ARCHITECTURE.md ← 领域边界和下一阶段模型怎么切？
+4. STRUCTURE.md        ← 文件在哪？新代码放哪？
+5. STACK.md            ← 用了什么技术？怎么构建？
+6. DATA-MODEL.md       ← 核心类型长什么样？怎么存的？
+7. 按需深入 →
    ├── ROADMAP.md      ← 整体路线规划
    ├── REQUIREMENTS.md ← 具体需求条目和验收标准
    ├── CONVENTIONS.md  ← 代码约定和规则
@@ -232,7 +236,7 @@ YYYY-MM-DD
 
 1. **STATE.md** — 当前位置 + 下一步
 2. **ARCHITECTURE.md** 第 1-2 节 — 全景图 + 数据流
-3. **STRUCTURE.md** 第 4 节 — 新代码放哪
+3. **DDD-ARCHITECTURE.md** 第 4、7 节 — 限界上下文 + 当前 phase 架构准则
 
 ---
 

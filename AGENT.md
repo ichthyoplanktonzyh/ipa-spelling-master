@@ -11,9 +11,10 @@ For every new session, read these first:
 
 1. `.planning/STATE.md` — current milestone, phase, next work
 2. `.planning/codebase/ARCHITECTURE.md` — system map, data flow, module boundaries
-3. `.planning/codebase/STRUCTURE.md` — where files live and where new code belongs
-4. `.planning/codebase/STACK.md` — dependencies and commands
-5. `.planning/codebase/DATA-MODEL.md` — core types and storage semantics
+3. `.planning/codebase/DDD-ARCHITECTURE.md` — bounded contexts, domain model, next architecture moves
+4. `.planning/codebase/STRUCTURE.md` — where files live and where new code belongs
+5. `.planning/codebase/STACK.md` — dependencies and commands
+6. `.planning/codebase/DATA-MODEL.md` — core types and storage semantics
 
 Read these as needed:
 
@@ -32,8 +33,9 @@ Read these as needed:
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
 - Current milestone: M2 — pure frontend standalone trainer MVP.
-- Current priority: Phase 2.1 — users must be able to train without L1 diagnosis, account, backend, or recommendation setup.
+- Current priority: Phase 2.2 — MVP scope triage: classify necessary features, delayed features, long-term enhancements, and pseudo-requirements.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
+- DDD direction: Training Core and Feedback are the core domains; Phase 2.3 should model `TrainingSession` and `SessionResult` explicitly after scope triage.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
 
 ## 3. Architecture Guardrails
@@ -108,6 +110,7 @@ There is no unit test framework yet. `.planning/codebase/TESTING.md` recommends 
 | Requirements changed | `.planning/REQUIREMENTS.md` |
 | Files or directories added/removed | `.planning/codebase/STRUCTURE.md` |
 | Architecture or module boundaries changed | `.planning/codebase/ARCHITECTURE.md` |
+| Domain boundaries or aggregate ownership changed | `.planning/codebase/DDD-ARCHITECTURE.md` |
 | Dependencies or commands changed | `.planning/codebase/STACK.md` |
 | Types, persistence, or notation semantics changed | `.planning/codebase/DATA-MODEL.md` |
 | Coding rules changed | `.planning/codebase/CONVENTIONS.md` |
