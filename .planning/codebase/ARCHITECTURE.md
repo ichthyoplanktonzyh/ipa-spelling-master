@@ -54,8 +54,12 @@
 │                                                                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐          │
 │  │ voice.ts     │  │ phonemeGroups│  │trainingSession│         │
-│  │ (TTS 管理)   │  │ (音素分组)   │  │(抽题/会话)    │          │
+│  │ (TTS 管理)   │  │ (音素分组)   │  │(会话/结果)    │          │
 │  └──────────────┘  └──────────────┘  └──────────────┘          │
+│  ┌──────────────┐  ┌──────────────┐                            │
+│  │ storage.ts   │  │ result views │                            │
+│  │ (本地历史)   │  │ (反馈复盘)   │                            │
+│  └──────────────┘  └──────────────┘                            │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
 │  │            Web Speech API (TTS)               │              │
@@ -86,8 +90,10 @@
 用户输入 → userInput 字符串 → profile.judge(input, target) → JudgeResult
                                     │
                             correct → 绿色反馈
-                            nearMatch → "Almost Correct"
+                            nearMatch → 黄色 Almost Correct + diffs
                             incorrect → 红色反馈 + diffs
+                                    │
+                     TrainingAnswer[] → SessionResult → 结果页/本地历史
 ```
 
 ### 2.2 L1 推荐流程
@@ -130,7 +136,8 @@
 | `utils/judge.ts` | 音素级判定 | phonemeJudge(), stringJudge() |
 | `utils/voice.ts` | TTS 语音管理 | getVoicesForLang(), selectBestVoice(), saveVoicePreference() |
 | `utils/phonemeGroups.ts` | 音素分组查询 | getItemsByPhoneme(), getPhonemeStats() |
-| `utils/trainingSession.ts` | 训练题组抽取 + fresh session 初始化 | pickItems(), refreshSession(), createFreshSession() |
+| `utils/trainingSession.ts` | 训练题组抽取、会话创建、答案追加、结果汇总 | pickItems(), refreshSession(), createTrainingAnswer(), buildSessionResult() |
+| `utils/storage.ts` | 最近训练结果本地存储 | loadSessionResults(), saveSessionResult(), clearSessionResults() |
 | `l1/difficultyMap.ts` | L1×L2 难度注册表 | getDifficultyMap(), getTopHardPhonemes(), getHardFeatures() |
 | `l1/zh_en.ts` | 中文→英语映射 | zh_en |
 | `l1/en_zh.ts` | 英语→中文映射 | en_zh |
@@ -160,7 +167,7 @@
 | Learner Progress | planned `storage.ts`, `recommendation.ts` | 本地历史和掌握度 |
 | Delivery | `components/*`, `App.tsx`, `voice.ts` | React UI、TTS、localStorage 适配 |
 
-架构决策：Phase 2.3 Feedback & Session Results 应让 `TrainingSession` 和 `SessionResult` 成为明确模型，避免结果页和历史记录从临时 React state 拼接。
+架构决策：Phase 2.3 Feedback & Session Results 已让 `TrainingSession` 和 `SessionResult` 成为明确模型；结果页、live score 和历史记录都从 `TrainingSession.answers` 推导，避免从临时 React state 拼接。
 
 ## 5. 已知架构债务
 
@@ -168,5 +175,5 @@
 |---|------|------|----------|
 | 1 | `components/IPAKeypad.tsx` 仍然存在但不再被引用 | 死代码 | 删除旧文件 |
 | 2 | phonemeGroups 有 GROUP_CACHE 但无失效机制 | 切换 profile 时可能返回旧数据 | 以 profile.code 做 key（已实现） |
-| 3 | judge.ts 不处理长度差异较大的输入 | 可能误判 nearMatch | 增加长度差异惩罚 |
-| 4 | 数据校验只覆盖结构/引用一致性 | 无法证明每条音标标注语言学正确 | 后续引入抽样审校或导入校验流程 |
+| 3 | 数据校验只覆盖结构/引用一致性 | 无法证明每条音标标注语言学正确 | 后续引入抽样审校或导入校验流程 |
+| 4 | judge/storage 缺少 fixture-based 单元测试 | 判定或本地历史边界逻辑可能回归 | 引入 Vitest 后补测试 |

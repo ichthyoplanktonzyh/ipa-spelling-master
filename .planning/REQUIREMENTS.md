@@ -309,7 +309,7 @@
 ### REQ FEED-001: 音素差异可视化
 
 - 优先级：P1
-- 阶段：M3
+- 阶段：M2
 - 需求：判定错误时高亮显示哪个音素与预期不符
 - 验收标准：
   - 利用 JudgeResult.diffs 定位错误位置
@@ -319,7 +319,7 @@
 ### REQ FEED-002: nearMatch 提示
 
 - 优先级：P1
-- 阶段：M3
+- 阶段：M2
 - 需求：nearMatch 时显示"几乎正确"的温和反馈
 - 验收标准：
   - 显示 "Almost Correct" 而非 "Incorrect"

@@ -19,10 +19,29 @@ import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
 import { SmartRecommend } from './components/SmartRecommend';
 import { OnboardingView } from './components/OnboardingView';
-import type { Difficulty, JudgeResult, LanguageProfile } from './types';
+import { SessionResultView } from './components/SessionResultView';
+import { PhonemeDiffView } from './components/PhonemeDiffView';
+import type {
+  Difficulty,
+  JudgeResult,
+  LanguageProfile,
+  SessionResult,
+  TrainingFeedback,
+  TrainingMode,
+  TrainingSession,
+} from './types';
 import { getProfile, SUPPORTED_L1 } from './profiles';
 import { getPhonemeStats } from './utils/phonemeGroups';
-import { refreshSession, type SessionState, type TrainingConfig } from './utils/trainingSession';
+import {
+  appendTrainingAnswer,
+  buildSessionResult,
+  completeTrainingSession,
+  createTrainingAnswer,
+  refreshSession,
+  type SessionState,
+  type TrainingConfig,
+} from './utils/trainingSession';
+import { clearSessionResults, loadSessionResults, saveSessionResult } from './utils/storage';
 import { getVoicesForLang, selectBestVoice, saveVoicePreference } from './utils/voice';
 
 // ── LocalStorage keys ──────────────────────────────────────────
@@ -104,16 +123,18 @@ export default function App() {
 
   // ── Training state ────────────────────────────────────────────
   const [difficulty, setDifficulty] = useState<Difficulty>('basic');
+  const [session, setSession] = useState<TrainingSession | null>(null);
+  const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
+  const [recentResults, setRecentResults] = useState<SessionResult[]>(loadSessionResults);
   const [items, setItems] = useState<SessionState['items']>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [userInput, setUserInput] = useState('');
-  const [feedback, setFeedback] = useState<'correct' | 'incorrect' | 'neutral'>('neutral');
+  const [feedback, setFeedback] = useState<TrainingFeedback>('neutral');
   const [judgeResult, setJudgeResult] = useState<JudgeResult | null>(null);
-  const [score, setScore] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showKeypad, setShowKeypad] = useState(true);
   const [selectedPhoneme, setSelectedPhoneme] = useState<string | null>(null);
-  const [mode, setMode] = useState<'spelling' | 'training'>('spelling');
+  const [mode, setMode] = useState<TrainingMode>('spelling');
   const [wordCount, setWordCount] = useState(10);
   const topicSelectRef = useRef<HTMLSelectElement | null>(null);
 
@@ -128,22 +149,31 @@ export default function App() {
     [profile],
   );
 
+  const score = useMemo(
+    () => session?.answers.filter(answer => answer.judgeResult.correct).length ?? 0,
+    [session],
+  );
+  const answeredCount = session?.answers.length ?? 0;
+  const liveAccuracy = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0;
+
   const applySession = (session: SessionState) => {
+    setSession(session.session);
+    setSessionResult(null);
     setItems(session.items);
     setCurrentIndex(session.currentIndex);
-    setScore(session.score);
     setFeedback(session.feedback);
     setUserInput(session.userInput);
     setJudgeResult(null);
   };
 
-  type SessionOverrides = Partial<Omit<TrainingConfig, 'profile'>>;
+  type SessionOverrides = Partial<Omit<TrainingConfig, 'profile' | 'l1'>>;
 
   const startFreshSession = useCallback((overrides: SessionOverrides = {}) => {
     if (!profile) return;
 
     const session = refreshSession({
       profile,
+      l1: effectiveL1,
       difficulty: overrides.difficulty ?? difficulty,
       phoneme: overrides.phoneme ?? selectedPhoneme,
       wordCount: overrides.wordCount ?? wordCount,
@@ -151,7 +181,7 @@ export default function App() {
     });
 
     applySession(session);
-  }, [profile, difficulty, selectedPhoneme, wordCount, mode]);
+  }, [profile, effectiveL1, difficulty, selectedPhoneme, wordCount, mode]);
 
   // ── Initialize word set when profile changes ─────────────────
   useEffect(() => {
@@ -227,7 +257,7 @@ export default function App() {
     startFreshSession({ phoneme, mode: 'spelling' });
   };
 
-  const handleModeChange = (nextMode: 'spelling' | 'training') => {
+  const handleModeChange = (nextMode: TrainingMode) => {
     setMode(nextMode);
     startFreshSession({ mode: nextMode });
   };
@@ -239,6 +269,10 @@ export default function App() {
   };
 
   const currentItem = items[currentIndex];
+
+  const handlePracticeAgain = () => {
+    startFreshSession();
+  };
 
   const playAudio = useCallback(() => {
     if (!currentItem || !profile || isPlaying) return;
@@ -291,19 +325,39 @@ export default function App() {
     setUserInput(prev => prev.slice(0, -1));
   };
 
+  const finishCurrentSession = (sourceSession: TrainingSession | null = session) => {
+    if (!sourceSession) return;
+
+    const completedSession = completeTrainingSession(sourceSession);
+    const result = buildSessionResult(completedSession);
+
+    setSession(completedSession);
+    setSessionResult(result);
+
+    if (saveSessionResult(result)) {
+      setRecentResults(loadSessionResults());
+    } else {
+      setRecentResults(prev => [result, ...prev.filter(item => item.id !== result.id)].slice(0, 12));
+    }
+  };
+
+  const handleClearSessionHistory = () => {
+    clearSessionResults();
+    setRecentResults([]);
+  };
+
   const checkAnswer = () => {
-    if (!currentItem || !profile || feedback !== 'neutral') return;
+    if (!currentItem || !profile || !session || feedback !== 'neutral') return;
 
     const result = profile.judge(userInput, currentItem.pronunciation);
+    const answer = createTrainingAnswer(currentItem, userInput, result);
     setJudgeResult(result);
+    setSession(prev => prev ? appendTrainingAnswer(prev, answer) : prev);
 
     if (result.correct) {
       setFeedback('correct');
-      setScore(prev => prev + 1);
     } else if (result.nearMatch) {
-      // Near match: count as correct but show hint
-      setFeedback('correct');
-      setScore(prev => prev + 1);
+      setFeedback('near');
     } else {
       setFeedback('incorrect');
     }
@@ -316,9 +370,7 @@ export default function App() {
       setFeedback('neutral');
       setJudgeResult(null);
     } else {
-      const msg = `本轮结束！得分: ${score + (feedback === 'correct' ? 0 : 0)}/${items.length}`;
-      alert(msg);
-      newWordSet();
+      finishCurrentSession();
     }
   };
 
@@ -326,8 +378,7 @@ export default function App() {
     if (currentIndex < items.length - 1) {
       setCurrentIndex(prev => prev + 1);
     } else {
-      alert('本轮训练结束！');
-      newWordSet();
+      finishCurrentSession();
     }
   };
 
@@ -345,6 +396,14 @@ export default function App() {
       const hasModifier = e.metaKey || e.ctrlKey || e.altKey;
 
       if (hasModifier) return;
+
+      if (sessionResult) {
+        if (!isTyping && e.code === 'KeyN') {
+          e.preventDefault();
+          newWordSet();
+        }
+        return;
+      }
 
       if (isTyping) {
         if (mode === 'spelling' && e.key === 'Enter') {
@@ -464,6 +523,7 @@ export default function App() {
     difficulty,
     selectedPhoneme,
     wordCount,
+    sessionResult,
   ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Render ────────────────────────────────────────────────────
@@ -674,7 +734,7 @@ export default function App() {
                 Score: {score}
               </div>
               <div className="text-[10px] text-slate-400 font-bold uppercase">
-                Accuracy: {items.length > 0 ? Math.round((score / (currentIndex || 1)) * 100) : 0}%
+                Accuracy: {liveAccuracy}% ({answeredCount}/{items.length})
               </div>
             </div>
           )}
@@ -731,7 +791,16 @@ export default function App() {
               </motion.div>
             )}
           </AnimatePresence>
-          {mode === 'training' ? (
+          {sessionResult ? (
+            <SessionResultView
+              result={sessionResult}
+              recentResults={recentResults}
+              profile={profile}
+              onPracticeAgain={handlePracticeAgain}
+              onNewWordSet={newWordSet}
+              onClearHistory={handleClearSessionHistory}
+            />
+          ) : mode === 'training' ? (
             <TrainingView
               items={items}
               currentIndex={currentIndex}
@@ -781,8 +850,12 @@ export default function App() {
                       </h2>
                       {feedback !== 'neutral' && (
                         <p className="mt-2 text-slate-800 font-mono text-lg">
-                          <span className={feedback === 'correct' ? 'text-green-600' : 'text-red-600'}>
-                            {feedback === 'correct' ? '✓ ' : '✗ '}
+                          <span className={
+                            feedback === 'correct' ? 'text-green-600' :
+                            feedback === 'near' ? 'text-amber-600' :
+                            'text-red-600'
+                          }>
+                            {feedback === 'correct' ? '✓ ' : feedback === 'near' ? '~ ' : '✗ '}
                           </span>
                           {profile.notationName === 'Pinyin' ? '词语: ' : 'Word: '}
                           <span className="font-bold underline decoration-indigo-200 uppercase tracking-widest">
@@ -818,6 +891,7 @@ export default function App() {
                         profile.notationName === 'Pinyin' ? '' : 'ipa-text'
                       } w-full text-center text-5xl font-light py-8 border-b-2 focus:outline-none transition-colors placeholder:text-slate-100 ${
                         feedback === 'correct' ? 'border-green-500 text-green-600' :
+                        feedback === 'near' ? 'border-amber-500 text-amber-600' :
                         feedback === 'incorrect' ? 'border-red-500 text-red-600' :
                         'border-slate-200 focus:border-indigo-600 text-slate-800'
                       }`}
@@ -835,7 +909,12 @@ export default function App() {
                           {feedback === 'correct' ? (
                             <div className="flex items-center gap-2 text-green-600 bg-green-50 px-5 py-2 rounded-full text-xs font-bold border border-green-100 uppercase tracking-widest">
                               <CheckCircle2 className="w-4 h-4" />
-                              {judgeResult?.nearMatch ? 'Almost Correct' : "That's Correct"}
+                              That's Correct
+                            </div>
+                          ) : feedback === 'near' ? (
+                            <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-5 py-2 rounded-full text-xs font-bold border border-amber-100 uppercase tracking-widest">
+                              <AlertTriangle className="w-4 h-4" />
+                              Almost Correct
                             </div>
                           ) : (
                             <div className="flex items-center gap-2 text-red-600 bg-red-50 px-5 py-2 rounded-full text-xs font-bold border border-red-100 uppercase tracking-widest">
@@ -852,6 +931,16 @@ export default function App() {
                         </motion.div>
                       )}
                     </AnimatePresence>
+
+                    {feedback !== 'neutral' && judgeResult && judgeResult.diffs.length > 0 && (
+                      <div className="mt-6">
+                        <PhonemeDiffView
+                          diffs={judgeResult.diffs}
+                          profile={profile}
+                          tone={feedback === 'near' ? 'amber' : 'red'}
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Lower Controls: Keypad */}

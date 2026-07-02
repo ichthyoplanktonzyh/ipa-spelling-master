@@ -4,6 +4,21 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 16:55 +0800
+
+### Added
+
+- Added explicit `TrainingSession`, `TrainingAnswer`, and `SessionResult` models for training feedback and results.
+- Added phoneme diff and session result views with review, retry, recent history, and clear-history controls.
+- Added guarded localStorage helpers for recent session results.
+- Added a Phase 2.3 manual QA checklist and completion summary.
+
+### Changed
+
+- Replaced end-of-session alerts with a result page.
+- Made nearMatch an independent feedback state that is tracked separately from exact correct answers.
+- Updated planning and codebase docs for the completed Phase 2.3 feedback/session loop.
+
 ## 2026-07-02 16:42 +0800
 
 ### Changed

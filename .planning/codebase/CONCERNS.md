@@ -31,15 +31,7 @@
 - **安全修改方式**：添加测试后再改动；不改变现有声母/韵母表的结构
 - **测试覆盖**：❌ 无
 
-### 2.1 phonemeJudge 长度差异
-
-- **文件**：`src/utils/judge.ts:32-43`
-- **脆弱原因**：当 input 和 target 长度差异较大时，nearMatch 判定可能不准确（只检查 diffs.length ≤ 1）
-- **常见失败**：用户只输入了一半音素，仍被判为 nearMatch
-- **安全修改方式**：增加长度差异比例检查
-- **测试覆盖**：❌ 无
-
-### 2.2 L1×L2 映射数据质量
+### 2.1 L1×L2 映射数据质量
 
 - **文件**：`src/l1/zh_en.ts`、`src/l1/en_zh.ts`
 - **脆弱原因**：映射数据基于语言学文献但未经大规模验证，可能有遗漏或过度简化
@@ -47,7 +39,7 @@
 - **安全修改方式**：逐步补充，不删除现有条目；新增条目需标注来源
 - **测试覆盖**：✅ `npm run validate:data` 覆盖结构与引用一致性；❌ 不验证语言学正确性
 
-### 2.3 数据校验仍偏结构化
+### 2.2 数据校验仍偏结构化
 
 - **文件**：`scripts/validateData.ts`、`src/data/wordBank.ts`、`src/data/zhWordBank.ts`
 - **脆弱原因**：Phase 2.2 校验能证明字段、identity、notation token 和引用一致，但不能证明每个 IPA/拼音标注在语言学上完全正确
@@ -62,6 +54,7 @@
 | P0 | `scripts/validateData.ts` | 当前作为脚本运行，无单元测试覆盖各类失败样例 |
 | P0 | `src/utils/pinyinParser.ts` | 边界音节解析错误直接影响汉语训练 |
 | P0 | `src/utils/judge.ts` | 判定逻辑错误影响所有语言的反馈 |
+| P0 | `src/utils/storage.ts` | localStorage 异常、坏数据或历史上限逻辑回归会影响最近记录 |
 | P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
 | P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
 | P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |

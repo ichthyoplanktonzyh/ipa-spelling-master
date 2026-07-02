@@ -33,9 +33,9 @@ Read these as needed:
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
 - Current milestone: M2 — pure frontend standalone trainer MVP.
-- Current priority: Phase 2.3 — feedback/session results on top of the cleaned data foundation.
+- Current priority: Phase 2.4 — publish readiness on top of the completed standalone training loop.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
-- DDD direction: Training Core and Feedback are the core domains; Phase 2.3 should model `TrainingSession` and `SessionResult` explicitly after data cleaning.
+- DDD direction: Training Core and Feedback are the core domains; Phase 2.3 modeled `TrainingSession` and `SessionResult`; Phase 2.4 should preserve that loop while preparing static release materials.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
 
 ## 3. Architecture Guardrails

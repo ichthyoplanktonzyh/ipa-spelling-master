@@ -59,6 +59,8 @@ ipa-spelling/
 | `OnboardingView.tsx` | 首次使用引导：L1/L2 选择 | profiles |
 | `TrainingView.tsx` | 训练模式视图：卡片 + 播放 + 导航 | types |
 | `PhoneticKeypad.tsx` | Profile-driven 音标/拼音键盘 | types |
+| `PhonemeDiffView.tsx` | 音素/拼音单元差异展示 | types |
+| `SessionResultView.tsx` | 会话结果页、错题复盘和最近记录 | types, PhonemeDiffView |
 | `SmartRecommend.tsx` | L1-aware 推荐面板 | types, l1/difficultyMap, profiles |
 | `IPAKeypad.tsx` | 旧英语键盘（遗留，可删除） | — |
 
@@ -100,7 +102,8 @@ ipa-spelling/
 | `judge.ts` | 音素级判定 + 字符串判定 | types |
 | `voice.ts` | TTS 语音管理（获取、选择、持久化） | — |
 | `phonemeGroups.ts` | 音素分组查询（profile-driven） | types |
-| `trainingSession.ts` | 训练题组抽取与 fresh session 初始化 | types, phonemeGroups |
+| `trainingSession.ts` | 训练题组抽取、会话创建、答案追加和结果汇总 | types, phonemeGroups |
+| `storage.ts` | 最近训练结果 localStorage repository | types |
 
 ## 3. 命名约定
 
@@ -123,6 +126,7 @@ ipa-spelling/
 | 添加新 L1×L2 映射 | `src/l1/{l1}_{l2}.ts` | `ja_en.ts` |
 | 添加新 UI 组件 | `src/components/{Name}.tsx` | `MinimalPairView.tsx` |
 | 添加新工具函数 | `src/utils/{name}.ts` | `statsCalculator.ts` |
+| 添加本地浏览器存储 adapter | `src/utils/{name}.ts` | `storage.ts` |
 | 添加维护/校验脚本 | `scripts/{name}.ts` | `validateData.ts` |
 | 添加新类型 | `src/types.ts`（同一文件） | 新增接口 |
 | 添加新 L1 选项 | `src/profiles/index.ts` 的 SUPPORTED_L1 数组 | `{code: 'th', label: 'ไทย'}` |

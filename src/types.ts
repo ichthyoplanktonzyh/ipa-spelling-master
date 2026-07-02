@@ -12,6 +12,14 @@
 
 export type Difficulty = 'basic' | 'intermediate' | 'advanced';
 
+// ── Training Session ───────────────────────────────────────────
+
+export type TrainingMode = 'spelling' | 'training';
+
+export type TrainingFeedback = 'correct' | 'near' | 'incorrect' | 'neutral';
+
+export type TrainingSessionStatus = 'in_progress' | 'completed';
+
 // ── Training Item ───────────────────────────────────────────────
 
 /** A single training item (word + pronunciation), language-agnostic. */
@@ -26,6 +34,50 @@ export interface TrainingItem {
   frequencyTier: Difficulty;
   /** Optional definition / gloss (e.g. English translation for Chinese words). */
   definition?: string;
+}
+
+export interface TrainingSessionConfig {
+  l1?: string;
+  l2: string;
+  mode: TrainingMode;
+  difficulty: Difficulty;
+  topic: string | null;
+  wordCount: number;
+}
+
+export interface TrainingAnswer {
+  itemId: string;
+  item: TrainingItem;
+  expected: string;
+  actual: string;
+  judgeResult: JudgeResult;
+  submittedAt: string;
+}
+
+export interface TrainingSession {
+  id: string;
+  createdAt: string;
+  completedAt?: string;
+  status: TrainingSessionStatus;
+  config: TrainingSessionConfig;
+  items: TrainingItem[];
+  answers: TrainingAnswer[];
+}
+
+export interface SessionResult {
+  id: string;
+  sessionId: string;
+  createdAt: string;
+  completedAt: string;
+  config: TrainingSessionConfig;
+  total: number;
+  answered: number;
+  correct: number;
+  nearMatch: number;
+  incorrect: number;
+  accuracy: number | null;
+  answers: TrainingAnswer[];
+  mistakes: TrainingAnswer[];
 }
 
 // ── Backward compatibility ──────────────────────────────────────
