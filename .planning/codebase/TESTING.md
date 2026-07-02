@@ -1,6 +1,6 @@
 # PhoneticMaster — 测试体系
 
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 
 ## 1. 测试层次
 
@@ -11,6 +11,8 @@
           │  Integration Tests  │   ← 组件 + profile 集成
           ├─────────────────────┤
           │    Unit Tests       │   ← parser, judge, difficultyMap
+          ├─────────────────────┤
+          │ Data Validation     │   ← profile / wordBank / L1 map consistency ✅ 已有
           ├─────────────────────┤
           │   Type Checking     │   ← tsc --noEmit ✅ 已有
           ├─────────────────────┤
@@ -26,8 +28,23 @@
 |------|------|------|
 | TypeScript 类型检查 | `npx tsc --noEmit` | ✅ 零错误 |
 | 生产构建 | `npm run build` | ✅ 通过 |
+| 数据一致性校验 | `npm run validate:data` | ✅ 覆盖 profile / 词库 / L1 映射 |
 
-### 2.2 单元测试（尚未建立）
+### 2.2 数据校验（已有）
+
+Phase 2.2 新增 `scripts/validateData.ts`，作为本地可重复运行的数据质量入口。
+
+| 检查范围 | 覆盖内容 |
+|----------|----------|
+| Profile | code 唯一、音素/特征不重复、keypad 引用已声明音素 |
+| Word bank | 字段完整、identity 去重、difficulty tier 一致 |
+| Notation | `pronunciation` 可解析且 token 全部存在于 profile phonemes |
+| Chinese Pinyin | `pronunciation` 为 tone-number form；`pronunciationAlt` 不含数字 |
+| L1/L2 maps | code 已注册、level 1-5、hardPhonemes/hardFeatures 引用目标 profile |
+
+当前限制：该脚本验证结构和引用一致性，不验证每条 IPA/拼音标注的语言学正确性。
+
+### 2.3 单元测试（尚未建立）
 
 当前项目没有测试框架。以下模块优先需要单元测试：
 
@@ -42,7 +59,7 @@
 | P2 | `utils/phonemeGroups.ts` | getItemsByPhoneme 筛选 / 缓存行为 |
 | P2 | `utils/voice.ts` | scoreVoice 优先级 / lang 筛选 |
 
-### 2.3 组件测试（尚未建立）
+### 2.4 组件测试（尚未建立）
 
 | 优先级 | 组件 | 关键测试点 |
 |--------|------|------------|
@@ -69,6 +86,9 @@ npx tsc --noEmit
 # 生产构建
 npm run build
 
+# 数据校验
+npm run validate:data
+
 # 单元测试（Vitest，待建立）
 # npx vitest run
 
@@ -83,6 +103,7 @@ npm run build
 
 | 优先级 | 缺口 | 风险 | 建议措施 |
 |--------|------|------|----------|
+| P0 | validateData 无单元测试 | 校验器自身规则回归时只靠真实数据发现 | 添加 fixture-based validator tests |
 | P0 | 无 parser 单元测试 | 拼音解析边界错误（ü, er, 独立韵母） | M2 前添加 Vitest + parser 测试 |
 | P0 | 无 judge 单元测试 | nearMatch 判定逻辑回归 | M2 前添加 judge 测试 |
 | P1 | 无 profile 集成测试 | judge 端到端错误 | 添加 profile.judge 快照测试 |

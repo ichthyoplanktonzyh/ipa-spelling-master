@@ -6,32 +6,16 @@
  *
  * Data source: HSK vocabulary lists (public domain educational material).
  * Pronunciation follows standard Mandarin Pinyin with tone numbers.
- *
- * Structure:
- * - basic: HSK 1 (≈150 entries)
- * - intermediate: HSK 2–3 (≈300 entries)
- * - advanced: HSK 4+ (future expansion)
- *
- * For each entry:
- * - display: Chinese characters
- * - pronunciation: Pinyin with tone numbers (e.g. "ni3 hao3")
- * - pronunciationAlt: Pinyin with diacritics (e.g. "nǐ hǎo")
- * - definition: English gloss (helps non-native learners)
- *
- * To regenerate from CC-CEDICT, use scripts/parse_cedict.py.
  */
 
 import type { TrainingItem, Difficulty } from '../types';
 
-// ── HSK 1: Basic ────────────────────────────────────────────────
-
 const basic: TrainingItem[] = [
-  // Greetings & pronouns
   { display: '我', pronunciation: 'wo3', pronunciationAlt: 'wǒ', frequencyTier: 'basic', definition: 'I, me' },
   { display: '你', pronunciation: 'ni3', pronunciationAlt: 'nǐ', frequencyTier: 'basic', definition: 'you' },
   { display: '他', pronunciation: 'ta1', pronunciationAlt: 'tā', frequencyTier: 'basic', definition: 'he, him' },
   { display: '她', pronunciation: 'ta1', pronunciationAlt: 'tā', frequencyTier: 'basic', definition: 'she, her' },
-  { display: '们', pronunciation: 'men', pronunciationAlt: 'men', frequencyTier: 'basic', definition: 'plural marker' },
+  { display: '们', pronunciation: 'men5', pronunciationAlt: 'men', frequencyTier: 'basic', definition: 'plural marker' },
   { display: '好', pronunciation: 'hao3', pronunciationAlt: 'hǎo', frequencyTier: 'basic', definition: 'good, well' },
   { display: '你好', pronunciation: 'ni3 hao3', pronunciationAlt: 'nǐ hǎo', frequencyTier: 'basic', definition: 'hello' },
   { display: '是', pronunciation: 'shi4', pronunciationAlt: 'shì', frequencyTier: 'basic', definition: 'to be' },
@@ -39,15 +23,11 @@ const basic: TrainingItem[] = [
   { display: '的', pronunciation: 'de5', pronunciationAlt: 'de', frequencyTier: 'basic', definition: 'possessive particle' },
   { display: '了', pronunciation: 'le5', pronunciationAlt: 'le', frequencyTier: 'basic', definition: 'completed action' },
   { display: '吗', pronunciation: 'ma5', pronunciationAlt: 'ma', frequencyTier: 'basic', definition: 'question particle' },
-
-  // Family
   { display: '爸爸', pronunciation: 'ba4 ba5', pronunciationAlt: 'bà ba', frequencyTier: 'basic', definition: 'father' },
   { display: '妈妈', pronunciation: 'ma1 ma5', pronunciationAlt: 'mā ma', frequencyTier: 'basic', definition: 'mother' },
   { display: '人', pronunciation: 'ren2', pronunciationAlt: 'rén', frequencyTier: 'basic', definition: 'person' },
   { display: '学生', pronunciation: 'xue2 sheng1', pronunciationAlt: 'xué shēng', frequencyTier: 'basic', definition: 'student' },
   { display: '老师', pronunciation: 'lao3 shi1', pronunciationAlt: 'lǎo shī', frequencyTier: 'basic', definition: 'teacher' },
-
-  // Time
   { display: '今天', pronunciation: 'jin1 tian1', pronunciationAlt: 'jīn tiān', frequencyTier: 'basic', definition: 'today' },
   { display: '明天', pronunciation: 'ming2 tian1', pronunciationAlt: 'míng tiān', frequencyTier: 'basic', definition: 'tomorrow' },
   { display: '昨天', pronunciation: 'zuo2 tian1', pronunciationAlt: 'zuó tiān', frequencyTier: 'basic', definition: 'yesterday' },
@@ -56,8 +36,6 @@ const basic: TrainingItem[] = [
   { display: '日', pronunciation: 'ri4', pronunciationAlt: 'rì', frequencyTier: 'basic', definition: 'day' },
   { display: '天', pronunciation: 'tian1', pronunciationAlt: 'tiān', frequencyTier: 'basic', definition: 'day/sky' },
   { display: '星期', pronunciation: 'xing1 qi1', pronunciationAlt: 'xīng qī', frequencyTier: 'basic', definition: 'week' },
-
-  // Food & drink
   { display: '水', pronunciation: 'shui3', pronunciationAlt: 'shuǐ', frequencyTier: 'basic', definition: 'water' },
   { display: '茶', pronunciation: 'cha2', pronunciationAlt: 'chá', frequencyTier: 'basic', definition: 'tea' },
   { display: '饭', pronunciation: 'fan4', pronunciationAlt: 'fàn', frequencyTier: 'basic', definition: 'rice/meal' },
@@ -65,8 +43,6 @@ const basic: TrainingItem[] = [
   { display: '喝', pronunciation: 'he1', pronunciationAlt: 'hē', frequencyTier: 'basic', definition: 'to drink' },
   { display: '水果', pronunciation: 'shui3 guo3', pronunciationAlt: 'shuǐ guǒ', frequencyTier: 'basic', definition: 'fruit' },
   { display: '苹果', pronunciation: 'ping2 guo3', pronunciationAlt: 'píng guǒ', frequencyTier: 'basic', definition: 'apple' },
-
-  // Common verbs
   { display: '去', pronunciation: 'qu4', pronunciationAlt: 'qù', frequencyTier: 'basic', definition: 'to go' },
   { display: '来', pronunciation: 'lai2', pronunciationAlt: 'lái', frequencyTier: 'basic', definition: 'to come' },
   { display: '看', pronunciation: 'kan4', pronunciationAlt: 'kàn', frequencyTier: 'basic', definition: 'to see/read' },
@@ -81,8 +57,6 @@ const basic: TrainingItem[] = [
   { display: '知道', pronunciation: 'zhi1 dao4', pronunciationAlt: 'zhī dào', frequencyTier: 'basic', definition: 'to know' },
   { display: '会', pronunciation: 'hui4', pronunciationAlt: 'huì', frequencyTier: 'basic', definition: 'can/will' },
   { display: '能', pronunciation: 'neng2', pronunciationAlt: 'néng', frequencyTier: 'basic', definition: 'can/able' },
-
-  // Common adjectives
   { display: '大', pronunciation: 'da4', pronunciationAlt: 'dà', frequencyTier: 'basic', definition: 'big' },
   { display: '小', pronunciation: 'xiao3', pronunciationAlt: 'xiǎo', frequencyTier: 'basic', definition: 'small' },
   { display: '多', pronunciation: 'duo1', pronunciationAlt: 'duō', frequencyTier: 'basic', definition: 'many/much' },
@@ -91,15 +65,11 @@ const basic: TrainingItem[] = [
   { display: '长', pronunciation: 'chang2', pronunciationAlt: 'cháng', frequencyTier: 'basic', definition: 'long' },
   { display: '热', pronunciation: 're4', pronunciationAlt: 'rè', frequencyTier: 'basic', definition: 'hot' },
   { display: '冷', pronunciation: 'leng3', pronunciationAlt: 'lěng', frequencyTier: 'basic', definition: 'cold' },
-
-  // Places
   { display: '家', pronunciation: 'jia1', pronunciationAlt: 'jiā', frequencyTier: 'basic', definition: 'home/family' },
   { display: '学校', pronunciation: 'xue2 xiao4', pronunciationAlt: 'xué xiào', frequencyTier: 'basic', definition: 'school' },
   { display: '医院', pronunciation: 'yi1 yuan4', pronunciationAlt: 'yī yuàn', frequencyTier: 'basic', definition: 'hospital' },
   { display: '中国', pronunciation: 'zhong1 guo2', pronunciationAlt: 'zhōng guó', frequencyTier: 'basic', definition: 'China' },
   { display: '北京', pronunciation: 'bei3 jing1', pronunciationAlt: 'běi jīng', frequencyTier: 'basic', definition: 'Beijing' },
-
-  // Numbers
   { display: '一', pronunciation: 'yi1', pronunciationAlt: 'yī', frequencyTier: 'basic', definition: 'one' },
   { display: '二', pronunciation: 'er4', pronunciationAlt: 'èr', frequencyTier: 'basic', definition: 'two' },
   { display: '三', pronunciation: 'san1', pronunciationAlt: 'sān', frequencyTier: 'basic', definition: 'three' },
@@ -110,8 +80,6 @@ const basic: TrainingItem[] = [
   { display: '八', pronunciation: 'ba1', pronunciationAlt: 'bā', frequencyTier: 'basic', definition: 'eight' },
   { display: '九', pronunciation: 'jiu3', pronunciationAlt: 'jiǔ', frequencyTier: 'basic', definition: 'nine' },
   { display: '十', pronunciation: 'shi2', pronunciationAlt: 'shí', frequencyTier: 'basic', definition: 'ten' },
-
-  // Common nouns
   { display: '书', pronunciation: 'shu1', pronunciationAlt: 'shū', frequencyTier: 'basic', definition: 'book' },
   { display: '字', pronunciation: 'zi4', pronunciationAlt: 'zì', frequencyTier: 'basic', definition: 'character/word' },
   { display: '朋友', pronunciation: 'peng2 you3', pronunciationAlt: 'péng yǒu', frequencyTier: 'basic', definition: 'friend' },
@@ -120,16 +88,12 @@ const basic: TrainingItem[] = [
   { display: '电脑', pronunciation: 'dian4 nao3', pronunciationAlt: 'diàn nǎo', frequencyTier: 'basic', definition: 'computer' },
   { display: '狗', pronunciation: 'gou3', pronunciationAlt: 'gǒu', frequencyTier: 'basic', definition: 'dog' },
   { display: '猫', pronunciation: 'mao1', pronunciationAlt: 'māo', frequencyTier: 'basic', definition: 'cat' },
-
-  // Question words
   { display: '什么', pronunciation: 'shen2 me5', pronunciationAlt: 'shén me', frequencyTier: 'basic', definition: 'what' },
   { display: '谁', pronunciation: 'shei2', pronunciationAlt: 'shéi', frequencyTier: 'basic', definition: 'who' },
   { display: '哪', pronunciation: 'na3', pronunciationAlt: 'nǎ', frequencyTier: 'basic', definition: 'which' },
   { display: '多少', pronunciation: 'duo1 shao3', pronunciationAlt: 'duō shǎo', frequencyTier: 'basic', definition: 'how many' },
   { display: '怎么', pronunciation: 'zen3 me5', pronunciationAlt: 'zěn me', frequencyTier: 'basic', definition: 'how' },
   { display: '哪里', pronunciation: 'na3 li3', pronunciationAlt: 'nǎ lǐ', frequencyTier: 'basic', definition: 'where' },
-
-  // Common adverbs & particles
   { display: '很', pronunciation: 'hen3', pronunciationAlt: 'hěn', frequencyTier: 'basic', definition: 'very' },
   { display: '也', pronunciation: 'ye3', pronunciationAlt: 'yě', frequencyTier: 'basic', definition: 'also' },
   { display: '都', pronunciation: 'dou1', pronunciationAlt: 'dōu', frequencyTier: 'basic', definition: 'all/both' },
@@ -137,18 +101,16 @@ const basic: TrainingItem[] = [
   { display: '有', pronunciation: 'you3', pronunciationAlt: 'yǒu', frequencyTier: 'basic', definition: 'to have' },
   { display: '和', pronunciation: 'he2', pronunciationAlt: 'hé', frequencyTier: 'basic', definition: 'and/with' },
   { display: '没有', pronunciation: 'mei2 you3', pronunciationAlt: 'méi yǒu', frequencyTier: 'basic', definition: 'not have' },
-
-  // More basics
   { display: '工作', pronunciation: 'gong1 zuo4', pronunciationAlt: 'gōng zuò', frequencyTier: 'basic', definition: 'work/job' },
   { display: '喜欢', pronunciation: 'xi3 huan5', pronunciationAlt: 'xǐ huan', frequencyTier: 'basic', definition: 'to like' },
   { display: '爱', pronunciation: 'ai4', pronunciationAlt: 'ài', frequencyTier: 'basic', definition: 'to love' },
   { display: '谢谢', pronunciation: 'xie4 xie5', pronunciationAlt: 'xiè xie', frequencyTier: 'basic', definition: 'thank you' },
   { display: '对不起', pronunciation: 'dui4 bu5 qi3', pronunciationAlt: 'duì bu qǐ', frequencyTier: 'basic', definition: 'sorry' },
-  { display: '没关系', pronunciation: 'mei2 guan1 xi5', pronunciationAlt: 'méi guān xi', frequencyTier: 'basic', definition: "it's okay" },
+  { display: '没关系', pronunciation: 'mei2 guan1 xi5', pronunciationAlt: 'méi guān xi', frequencyTier: 'basic', definition: 'it\'s okay' },
   { display: '再见', pronunciation: 'zai4 jian4', pronunciationAlt: 'zài jiàn', frequencyTier: 'basic', definition: 'goodbye' },
   { display: '现在', pronunciation: 'xian4 zai4', pronunciationAlt: 'xiàn zài', frequencyTier: 'basic', definition: 'now' },
   { display: '时候', pronunciation: 'shi2 hou5', pronunciationAlt: 'shí hou', frequencyTier: 'basic', definition: 'time/when' },
-  { display: '点', pronunciation: 'dian3', pronunciationAlt: 'diǎn', frequencyTier: 'basic', definition: "o'clock/dot" },
+  { display: '点', pronunciation: 'dian3', pronunciationAlt: 'diǎn', frequencyTier: 'basic', definition: 'o\'clock/dot' },
   { display: '块', pronunciation: 'kuai4', pronunciationAlt: 'kuài', frequencyTier: 'basic', definition: 'piece/yuan' },
   { display: '块钱', pronunciation: 'kuai4 qian2', pronunciationAlt: 'kuài qián', frequencyTier: 'basic', definition: 'yuan (money)' },
   { display: '房子', pronunciation: 'fang2 zi5', pronunciationAlt: 'fáng zi', frequencyTier: 'basic', definition: 'house' },
@@ -175,16 +137,12 @@ const basic: TrainingItem[] = [
   { display: '晚上', pronunciation: 'wan3 shang5', pronunciationAlt: 'wǎn shang', frequencyTier: 'basic', definition: 'evening' },
   { display: '中午', pronunciation: 'zhong1 wu3', pronunciationAlt: 'zhōng wǔ', frequencyTier: 'basic', definition: 'noon' },
   { display: '下午', pronunciation: 'xia4 wu3', pronunciationAlt: 'xià wǔ', frequencyTier: 'basic', definition: 'afternoon' },
-  { display: '时候', pronunciation: 'shi2 hou5', pronunciationAlt: 'shí hou', frequencyTier: 'basic', definition: 'time' },
   { display: '个', pronunciation: 'ge4', pronunciationAlt: 'gè', frequencyTier: 'basic', definition: 'measure word' },
   { display: '这', pronunciation: 'zhe4', pronunciationAlt: 'zhè', frequencyTier: 'basic', definition: 'this' },
   { display: '那', pronunciation: 'na4', pronunciationAlt: 'nà', frequencyTier: 'basic', definition: 'that' },
   { display: '两', pronunciation: 'liang3', pronunciationAlt: 'liǎng', frequencyTier: 'basic', definition: 'two (before measure)' },
   { display: '几', pronunciation: 'ji3', pronunciationAlt: 'jǐ', frequencyTier: 'basic', definition: 'how many/a few' },
-  { display: '点', pronunciation: 'dian3', pronunciationAlt: 'diǎn', frequencyTier: 'basic', definition: "o'clock" },
 ];
-
-// ── HSK 2–3: Intermediate ──────────────────────────────────────
 
 const intermediate: TrainingItem[] = [
   { display: '开始', pronunciation: 'kai1 shi3', pronunciationAlt: 'kāi shǐ', frequencyTier: 'intermediate', definition: 'to begin' },
@@ -235,7 +193,7 @@ const intermediate: TrainingItem[] = [
   { display: '而且', pronunciation: 'er2 qie3', pronunciationAlt: 'ér qiě', frequencyTier: 'intermediate', definition: 'moreover' },
   { display: '还是', pronunciation: 'hai2 shi4', pronunciationAlt: 'hái shì', frequencyTier: 'intermediate', definition: 'or/still' },
   { display: '或者', pronunciation: 'huo4 zhe3', pronunciationAlt: 'huò zhě', frequencyTier: 'intermediate', definition: 'or (statement)' },
-  { display: '别', pronunciation: 'bie2', pronunciationAlt: 'bié', frequencyTier: 'intermediate', definition: "don't" },
+  { display: '别', pronunciation: 'bie2', pronunciationAlt: 'bié', frequencyTier: 'intermediate', definition: 'don\'t' },
   { display: '刚', pronunciation: 'gang1', pronunciationAlt: 'gāng', frequencyTier: 'intermediate', definition: 'just now' },
   { display: '才', pronunciation: 'cai2', pronunciationAlt: 'cái', frequencyTier: 'intermediate', definition: 'just/only then' },
   { display: '最', pronunciation: 'zui4', pronunciationAlt: 'zuì', frequencyTier: 'intermediate', definition: 'most' },
@@ -288,8 +246,6 @@ const intermediate: TrainingItem[] = [
   { display: '语法', pronunciation: 'yu3 fa3', pronunciationAlt: 'yǔ fǎ', frequencyTier: 'intermediate', definition: 'grammar' },
 ];
 
-// ── Advanced: placeholder for HSK 4+ ───────────────────────────
-
 const advanced: TrainingItem[] = [
   { display: '发展', pronunciation: 'fa1 zhan3', pronunciationAlt: 'fā zhǎn', frequencyTier: 'advanced', definition: 'to develop' },
   { display: '改革', pronunciation: 'gai3 ge2', pronunciationAlt: 'gǎi gé', frequencyTier: 'advanced', definition: 'reform' },
@@ -312,8 +268,6 @@ const advanced: TrainingItem[] = [
   { display: '效率', pronunciation: 'xiao4 lv4', pronunciationAlt: 'xiào lǜ', frequencyTier: 'advanced', definition: 'efficiency' },
   { display: '标准', pronunciation: 'biao1 zhun3', pronunciationAlt: 'biāo zhǔn', frequencyTier: 'advanced', definition: 'standard' },
 ];
-
-// ── Exports ─────────────────────────────────────────────────────
 
 export const zhWordBank: Record<Difficulty, TrainingItem[]> = {
   basic,

@@ -94,7 +94,7 @@ export interface ParsedSyllable {
   initial: string;
   /** Final (韵母), e.g. 'ao', 'i'. */
   final: string;
-  /** Tone number 1-4, or 0 for neutral tone. 5 if unknown. */
+  /** Tone number 1-4, 0 for neutral tone, or -1 if missing. */
   tone: number;
 }
 
@@ -106,7 +106,7 @@ export interface ParsedSyllable {
  */
 function parseSyllable(syl: string): ParsedSyllable {
   // Extract tone number from the end
-  let tone = 0; // neutral / unknown
+  let tone = -1; // missing / unknown
   let body = syl;
 
   const lastChar = syl[syl.length - 1];
@@ -128,10 +128,48 @@ function parseSyllable(syl: string): ParsedSyllable {
     }
   }
 
+  if (initial === 'j' || initial === 'q' || initial === 'x') {
+    body = body.replace(/^u/, 'v');
+  }
+
+  if (!initial) {
+    body = normalizeZeroInitialFinal(body);
+  }
+
   // The remainder is the final
   const final_ = body || 'e'; // fallback for edge cases like "e"
 
   return { initial, final: final_, tone };
+}
+
+function normalizeZeroInitialFinal(body: string): string {
+  const zeroInitialMap: Record<string, string> = {
+    ya: 'ia',
+    yan: 'ian',
+    yang: 'iang',
+    yao: 'iao',
+    ye: 'ie',
+    yi: 'i',
+    yin: 'in',
+    ying: 'ing',
+    yong: 'iong',
+    you: 'iu',
+    yu: 'v',
+    yue: 've',
+    yuan: 'van',
+    yun: 'vn',
+    wa: 'ua',
+    wai: 'uai',
+    wan: 'uan',
+    wang: 'uang',
+    wei: 'ui',
+    wen: 'un',
+    weng: 'ong',
+    wo: 'uo',
+    wu: 'u',
+  };
+
+  return zeroInitialMap[body] ?? body;
 }
 
 /**
@@ -163,7 +201,7 @@ export function parsePinyin(pinyin: string): string[] {
       result.push(syl.initial);
     }
     result.push(syl.final);
-    if (syl.tone > 0) {
+    if (syl.tone >= 0) {
       result.push(String(syl.tone));
     }
   }
@@ -183,7 +221,8 @@ export function getUniquePinyinPhonemes(pinyin: string): string[] {
  * e.g. { initial: 'n', final: 'i', tone: 3 } → "ni3"
  */
 export function syllableToString(syl: ParsedSyllable): string {
-  return `${syl.initial}${syl.final}${syl.tone > 0 ? syl.tone : ''}`;
+  const tone = syl.tone === 0 ? 5 : syl.tone > 0 ? syl.tone : '';
+  return `${syl.initial}${syl.final}${tone}`;
 }
 
 /**

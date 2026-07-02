@@ -4,6 +4,20 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 15:58 +0800
+
+### Added
+
+- Added `scripts/validateData.ts` and `npm run validate:data` to validate language profiles, word banks, notation tokens, and L1/L2 difficulty maps.
+- Added Phase 2.2 completion summary and updated planning docs for the data-cleaning gate.
+
+### Changed
+
+- Migrated the English word bank to `TrainingItem[]` and removed runtime conversion from `englishProfile`.
+- Deduplicated English and Chinese training items by `display + pronunciation`.
+- Normalized Pinyin parsing for neutral tone, zero-initial `y/w` spellings, and `j/q/x + ü` finals.
+- Updated README and codebase docs with current word-bank counts and validation workflow.
+
 ## 2026-07-02 15:42 +0800
 
 ### Added

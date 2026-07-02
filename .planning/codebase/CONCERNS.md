@@ -5,15 +5,7 @@
 
 ## 1. 技术债
 
-### 1.1 Legacy WordData 格式
-
-- **文件**：`src/data/wordBank.ts`、`src/profiles/en.ts:68-79`
-- **问题**：英语词库仍使用 `WordData` 格式，en.ts 需要运行时 `convertWordBank()` 转换
-- **影响**：每次 import englishProfile 都执行转换；类型不一致增加认知负担
-- **修复方向**：将 wordBank.ts 直接迁移为 TrainingItem 格式，删除 convertWordBank()
-- **当前状态**：纳入 Phase 2.2 Data Cleaning
-
-### 1.2 旧 IPAKeypad 组件残留
+### 1.1 旧 IPAKeypad 组件残留
 
 - **文件**：`src/components/IPAKeypad.tsx`
 - **问题**：此文件已不再被任何模块引用（App.tsx 使用 PhoneticKeypad），属于死代码
@@ -21,7 +13,7 @@
 - **修复方向**：直接删除
 - **当前状态**：待清理
 
-### 1.3 phonemeGroups 缓存无主动失效
+### 1.2 phonemeGroups 缓存无主动失效
 
 - **文件**：`src/utils/phonemeGroups.ts:14`
 - **问题**：GROUP_CACHE 以 profile.code 为 key 缓存，但同一 profile 的 wordBank 如果在运行时被修改，缓存不会更新
@@ -53,12 +45,21 @@
 - **脆弱原因**：映射数据基于语言学文献但未经大规模验证，可能有遗漏或过度简化
 - **常见失败**：某些难点音素未覆盖；minimalPairs 列表可能不够典型
 - **安全修改方式**：逐步补充，不删除现有条目；新增条目需标注来源
-- **测试覆盖**：❌ 无（纳入 Phase 2.2 Data Cleaning 的结构校验）
+- **测试覆盖**：✅ `npm run validate:data` 覆盖结构与引用一致性；❌ 不验证语言学正确性
+
+### 2.3 数据校验仍偏结构化
+
+- **文件**：`scripts/validateData.ts`、`src/data/wordBank.ts`、`src/data/zhWordBank.ts`
+- **脆弱原因**：Phase 2.2 校验能证明字段、identity、notation token 和引用一致，但不能证明每个 IPA/拼音标注在语言学上完全正确
+- **常见失败**：错误音标仍可能是“可解析 token”；minimalPairs 可能格式正确但教学价值一般
+- **安全修改方式**：后续引入抽样审校、来源字段或专门的词库导入/校验流程
+- **测试覆盖**：✅ 结构校验；❌ 内容正确性审校
 
 ## 3. 测试覆盖缺口
 
 | 优先级 | 文件 | 风险 |
 |--------|------|------|
+| P0 | `scripts/validateData.ts` | 当前作为脚本运行，无单元测试覆盖各类失败样例 |
 | P0 | `src/utils/pinyinParser.ts` | 边界音节解析错误直接影响汉语训练 |
 | P0 | `src/utils/judge.ts` | 判定逻辑错误影响所有语言的反馈 |
 | P0 | `src/utils/ipaParser.ts` | 双字符音素匹配顺序影响英语训练 |
@@ -79,7 +80,6 @@
 
 | 操作 | 预估耗时 | 文件 | 改进方向 |
 |------|----------|------|----------|
-| englishProfile 初始化（convertWordBank） | ~1ms | `profiles/en.ts` | 迁移词库格式 |
 | 首次 buildPhonemeGroups | ~5ms | `utils/phonemeGroups.ts` | 已缓存，可接受 |
 | 构建产物大小 | 668KB / 193KB gzip | 全局 | code splitting |
 | 汉语词库加载 | ~2ms | `data/zhWordBank.ts` | 未来可按 HSK 级别懒加载 |

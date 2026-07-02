@@ -100,13 +100,13 @@ Click "Hide Keypad" to collapse it and free up screen space.
 
 ## Word Bank
 
-Based on the [COCA (Corpus of Contemporary American English)](https://www.english-corpora.org/coca/) top 5,000 frequency list. Contains **4,648** words total, each with both British (RP) and American (General American) IPA transcriptions.
+Based on the [COCA (Corpus of Contemporary American English)](https://www.english-corpora.org/coca/) top 5,000 frequency list. Contains **4,088** deduplicated English items, each with American IPA as the primary transcription and British IPA as an alternate transcription.
 
 | Level | COCA Rank | Count | Examples (American IPA) |
 |-------|-----------|-------|--------------------------|
-| Basic | 1–1,200 | 952 | say /se/, time /taɪm/ |
-| Intermediate | 1,201–3,000 | 1,746 | method /ˈmɛθəd/, surface /ˈsɜ:rfɪs/ |
-| Advanced | 3,001–5,000 | 1,950 | composition /ˌkɑ:mpəˈzɪʃn/ |
+| Basic | 1–1,200 | 881 | say /se/, time /taɪm/ |
+| Intermediate | 1,201–3,000 | 1,527 | method /ˈmɛθəd/, surface /ˈsɜ:rfɪs/ |
+| Advanced | 3,001–5,000 | 1,680 | composition /ˌkɑ:mpəˈzɪʃn/ |
 
 Word bank data sourced from [llt22/coca-vocabulary-20000](https://github.com/llt22/coca-vocabulary-20000). The parser script is at `.coca_raw/parse.py`.
 
@@ -135,7 +135,7 @@ src/
 │   ├── IPAKeypad.tsx        # Interactive IPA keyboard component
 │   └── TrainingView.tsx     # Listening training mode component
 ├── data/
-│   └── wordBank.ts          # Local word bank (4,648 words)
+│   └── wordBank.ts          # Local English word bank (4,088 items)
 └── utils/
     ├── voice.ts             # Voice management (smart selection + localStorage)
     ├── ipaParser.ts         # IPA parser (phoneme tokenizer)

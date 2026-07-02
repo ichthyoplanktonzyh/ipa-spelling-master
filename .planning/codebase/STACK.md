@@ -1,6 +1,6 @@
 # PhoneticMaster — 技术栈
 
-> 最后更新：2026-06-22
+> 最后更新：2026-07-02
 
 ## 1. 总览
 
@@ -68,4 +68,5 @@ MVP 目标是纯前端静态发布。`server.ts` / Express 用于本地开发、
 | `npm run start` | 运行生产构建 (node dist/server.cjs) |
 | `npm run preview` | 同 start |
 | `npm run lint` | TypeScript 类型检查 (tsc --noEmit) |
+| `npm run validate:data` | 校验 profile、词库和 L1/L2 映射数据一致性 |
 | `npm run clean` | 清理 dist/ |

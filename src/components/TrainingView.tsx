@@ -4,7 +4,7 @@
  *
  * Training view: shows a word card with audio playback.
  * Now profile-driven: uses TrainingItem and LanguageProfile
- * instead of hardcoded WordData + English IPA.
+ * instead of hardcoded English-only data.
  */
 
 import React from 'react';

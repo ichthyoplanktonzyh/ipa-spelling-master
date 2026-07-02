@@ -13,7 +13,8 @@
     "start": "node dist/server.cjs",
     "preview": "npm run start",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "validate:data": "tsx scripts/validateData.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",

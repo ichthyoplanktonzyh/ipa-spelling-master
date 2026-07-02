@@ -7,15 +7,10 @@
  * scattered across ipaParser.ts, IPAKeypad.tsx, phonemeGroups.ts.
  */
 
-import type {
-  Difficulty,
-  LanguageProfile,
-  PhonemeDef,
-  TrainingItem,
-} from '../types';
+import type { LanguageProfile, PhonemeDef } from '../types';
 import { tokenizeIpa } from '../utils/ipaParser';
 import { phonemeJudge } from '../utils/judge';
-import { wordBank as legacyWordBank } from '../data/wordBank';
+import { wordBank } from '../data/wordBank';
 
 // ── Phoneme inventory ───────────────────────────────────────────
 
@@ -95,26 +90,6 @@ const EN_KEYPAD = [
   },
 ];
 
-// ── Word bank conversion ────────────────────────────────────────
-
-function convertWordBank(): Record<Difficulty, TrainingItem[]> {
-  const tiers: Difficulty[] = ['basic', 'intermediate', 'advanced'];
-  const result: Record<Difficulty, TrainingItem[]> = {
-    basic: [],
-    intermediate: [],
-    advanced: [],
-  };
-  for (const tier of tiers) {
-    result[tier] = legacyWordBank[tier].map(w => ({
-      display: w.word,
-      pronunciation: w.ipa_us,
-      pronunciationAlt: w.ipa_uk,
-      frequencyTier: tier,
-    }));
-  }
-  return result;
-}
-
 // ── IPA judge ───────────────────────────────────────────────────
 
 function enJudge(input: string, target: string) {
@@ -132,6 +107,6 @@ export const englishProfile: LanguageProfile = {
   ttsLang: 'en-US',
   parseNotation: tokenizeIpa,
   judge: enJudge,
-  soundFeatures: ['stress', 'weak_form', 'linking', 'vowel_reduction', 'elision'],
-  wordBank: convertWordBank(),
+  soundFeatures: ['stress', 'weak_form', 'linking', 'vowel_reduction', 'elision', 'assimilation'],
+  wordBank,
 };

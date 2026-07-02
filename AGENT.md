@@ -33,7 +33,7 @@ Read these as needed:
 
 - Product: PhoneticMaster, a lightweight pure-frontend multilingual phonetic perception trainer.
 - Current milestone: M2 — pure frontend standalone trainer MVP.
-- Current priority: Phase 2.2 — data cleaning for word banks, profiles, and L1/L2 mapping consistency.
+- Current priority: Phase 2.3 — feedback/session results on top of the cleaned data foundation.
 - Core principle: the trainer must work on its own; L1-aware recommendation is an optional coach layer.
 - DDD direction: Training Core and Feedback are the core domains; Phase 2.3 should model `TrainingSession` and `SessionResult` explicitly after data cleaning.
 - MVP deployment target: static frontend hosting. `server.ts` is useful for local preview/self-hosting, not a required backend.
@@ -74,6 +74,7 @@ components -> profiles -> utils / data / l1
 |---|---|
 | `npm run dev` | start the Vite/Express dev server on port 3000 |
 | `npm run lint` | TypeScript check via `tsc --noEmit` |
+| `npm run validate:data` | validate profiles, word banks, and L1/L2 maps |
 | `npx tsc --noEmit` | direct type check |
 | `npm run build` | production build plus bundled `server.ts` |
 | `npm run start` | run `dist/server.cjs` after build |
@@ -124,8 +125,8 @@ Check `.planning/codebase/CONCERNS.md` before touching:
 - `src/App.tsx`, `src/components/OnboardingView.tsx`, `src/components/SmartRecommend.tsx` — L1/L2 entry flow is being adjusted for standalone training.
 - `src/utils/pinyinParser.ts` — pinyin syllable parsing has many edge cases.
 - `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences.
-- `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is useful but not exhaustive.
-- `src/data/wordBank.ts`, `src/profiles/en.ts` — English word bank still uses legacy conversion.
+- `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is structurally validated but not linguistically exhaustive.
+- `scripts/validateData.ts` — data validation gate has no fixture-based unit tests yet.
 - `src/components/IPAKeypad.tsx` — legacy component, currently dead code.
 
 ## 9. Working Style

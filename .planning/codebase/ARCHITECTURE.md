@@ -37,8 +37,8 @@
 │  └────┬─────┘  └─────┬─────┘  └──────────┘                    │
 │       │              │                                           │
 │  ┌────▼─────┐  ┌─────▼──────┐                                  │
-│  │ wordBank │  │ zhWordBank │   ← TrainingItem[]               │
-│  │ (legacy) │  │ (HSK 1-3) │                                  │
+  │  │ wordBank │  │ zhWordBank │   ← TrainingItem[]               │
+  │  │ (COCA)   │  │ (HSK 1-3) │                                  │
 │  └──────────┘  └────────────┘                                  │
 │                                                                  │
 │  ┌───────────────────────────────────────────────┐              │
@@ -123,7 +123,7 @@
 | `profiles/index.ts` | Profile 注册表 + L1 列表 | getProfile(), getAllProfiles(), SUPPORTED_L1 |
 | `profiles/en.ts` | 英语 Profile | englishProfile |
 | `profiles/zh.ts` | 汉语 Profile | chineseProfile |
-| `data/wordBank.ts` | 英语词库 (legacy WordData) | wordBank, pickWords() |
+| `data/wordBank.ts` | 英语词库 (TrainingItem, COCA 去重数据) | wordBank, pickWords() |
 | `data/zhWordBank.ts` | 汉语词库 (TrainingItem) | zhWordBank, pickZhWords() |
 | `utils/ipaParser.ts` | IPA 音素分词 | tokenizeIpa(), getUniquePhonemes() |
 | `utils/pinyinParser.ts` | 拼音解析 | parsePinyin(), parsePinyinSyllables(), diacriticsToNumbers() |
@@ -134,6 +134,7 @@
 | `l1/difficultyMap.ts` | L1×L2 难度注册表 | getDifficultyMap(), getTopHardPhonemes(), getHardFeatures() |
 | `l1/zh_en.ts` | 中文→英语映射 | zh_en |
 | `l1/en_zh.ts` | 英语→中文映射 | en_zh |
+| `scripts/validateData.ts` | 数据质量门禁：Profile / 词库 / L1 映射一致性校验 | `npm run validate:data` |
 
 ## 4. 关键架构边界
 
@@ -165,7 +166,7 @@
 
 | # | 债务 | 影响 | 清偿方向 |
 |---|------|------|----------|
-| 1 | `data/wordBank.ts` 仍使用 WordData 格式 | en.ts 需要 convertWordBank() 运行时转换 | 直接迁移为 TrainingItem 格式 |
-| 2 | `components/IPAKeypad.tsx` 仍然存在但不再被引用 | 死代码 | 删除旧文件 |
-| 3 | phonemeGroups 有 GROUP_CACHE 但无失效机制 | 切换 profile 时可能返回旧数据 | 以 profile.code 做 key（已实现） |
-| 4 | judge.ts 不处理长度差异较大的输入 | 可能误判 nearMatch | 增加长度差异惩罚 |
+| 1 | `components/IPAKeypad.tsx` 仍然存在但不再被引用 | 死代码 | 删除旧文件 |
+| 2 | phonemeGroups 有 GROUP_CACHE 但无失效机制 | 切换 profile 时可能返回旧数据 | 以 profile.code 做 key（已实现） |
+| 3 | judge.ts 不处理长度差异较大的输入 | 可能误判 nearMatch | 增加长度差异惩罚 |
+| 4 | 数据校验只覆盖结构/引用一致性 | 无法证明每条音标标注语言学正确 | 后续引入抽样审校或导入校验流程 |

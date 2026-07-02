@@ -138,3 +138,32 @@ ipa_uk      ──────────→    pronunciationAlt
 
 Conversion functions: `wordDataToTrainingItem()` / `trainingItemToWordData()` in `types.ts`.
 WordData is `@deprecated` — new code must use TrainingItem directly.
+
+Phase 2.2 已将 `src/data/wordBank.ts` 迁移为 `Record<Difficulty, TrainingItem[]>`。`WordData` 与转换函数仅保留给历史文档或外部迁移参考，运行时英语 profile 不再执行 legacy 转换。
+
+## Data Validation Rules
+
+可重复运行入口：
+
+```bash
+npm run validate:data
+```
+
+校验覆盖：
+
+| 范围 | 规则 |
+|------|------|
+| Profile | `code` 唯一；`phonemes` / `soundFeatures` 不重复；`keypadLayout` 只能引用已声明音素 |
+| Word bank | `display`、`pronunciation`、`frequencyTier` 必填；`frequencyTier` 必须匹配所在难度档 |
+| TrainingItem identity | `display + pronunciation` 在同一 profile 内唯一 |
+| Notation parsing | `pronunciation` 必须能解析出至少一个 token，且 token 必须存在于 profile phonemes |
+| English IPA | 清理 ASCII stress/g、重复 identity 和少量 ASCII IPA 片段；`pronunciation` 为主要美式 IPA |
+| Chinese Pinyin | `pronunciation` 必须为正字法 tone-number form，每个音节以 `1-5` 结尾；`pronunciationAlt` 不含数字，仅作显示 |
+| L1/L2 map | `l1` / `l2` code 必须已注册；hardPhonemes 引用目标 profile 音素；hardFeatures 引用目标 profile soundFeatures；level 为 1-5 |
+
+当前通过校验的数据规模：
+
+| Profile | Basic | Intermediate | Advanced | Total |
+|---------|------:|-------------:|---------:|------:|
+| English IPA | 881 | 1,527 | 1,680 | 4,088 |
+| 中文 Pinyin | 131 | 99 | 20 | 250 |

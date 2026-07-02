@@ -167,6 +167,16 @@ export const zh_en: L1L2Difficulty = {
 };
 ```
 
+### 5.4 数据校验
+
+修改 `src/profiles/*`、`src/data/*` 或 `src/l1/*` 后必须运行：
+
+```bash
+npm run validate:data
+```
+
+该命令校验字段完整性、TrainingItem identity、difficulty tier、notation token、keypad 引用和 L1/L2 映射引用。
+
 ## 6. 样式约定
 
 - 使用 Tailwind utility classes，不写自定义 CSS

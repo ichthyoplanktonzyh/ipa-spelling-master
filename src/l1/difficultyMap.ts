@@ -45,6 +45,14 @@ export function getDifficultyMap(l1: string, l2: string): L1L2Difficulty | undef
 }
 
 /**
+ * Return all registered difficulty maps.
+ * Used by data validation and future maintenance tooling.
+ */
+export function getAllDifficultyMaps(): L1L2Difficulty[] {
+  return [...DIFFICULTY_MAPS.values()];
+}
+
+/**
  * Get recommended phonemes for practice, ordered by L1-specific difficulty.
  *
  * If no L1×L2 mapping exists, returns all phonemes from the profile
