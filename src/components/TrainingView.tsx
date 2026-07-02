@@ -78,6 +78,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             whileTap={{ scale: 0.95 }}
             onClick={onPlayAudio}
             disabled={isPlaying}
+            title="播放发音 (Space)"
             className={`w-28 h-28 rounded-full flex items-center justify-center transition-all cursor-pointer ${
               isPlaying
                 ? 'bg-indigo-100 text-indigo-600'
@@ -100,9 +101,6 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             )}
           </motion.button>
 
-          <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">
-            Press <kbd className="px-2 py-0.5 bg-slate-100 rounded text-slate-600 font-mono">Space</kbd> to replay
-          </p>
         </div>
 
         {/* Bottom Footer */}
@@ -111,14 +109,12 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
               {currentIndex + 1} / {items.length}
             </span>
-            <span className="text-[10px] text-slate-300 font-medium">
-              <kbd className="px-1.5 py-0.5 bg-slate-100 rounded text-slate-400 font-mono text-[10px]">←→</kbd> Navigate
-            </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={onPrev}
               disabled={currentIndex === 0}
+              title="上一个词 (←)"
               className="px-6 py-3 text-slate-400 hover:text-slate-700 disabled:opacity-30 disabled:hover:text-slate-400 transition-colors flex items-center justify-center gap-2 uppercase text-xs font-bold tracking-widest cursor-pointer disabled:cursor-not-allowed"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -126,6 +122,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
             </button>
             <button
               onClick={onNext}
+              title="下一个词 (→)"
               className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
             >
               {currentIndex < items.length - 1 ? 'Next Word' : 'Complete Session'}
@@ -139,6 +136,7 @@ export const TrainingView: React.FC<TrainingViewProps> = ({
       <div className="flex justify-center">
         <button
           onClick={onNewWordSet}
+          title="换一组题 (N)"
           className="flex items-center gap-2 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold uppercase tracking-[0.2em] cursor-pointer"
         >
           <RefreshCw className="w-3 h-3" />

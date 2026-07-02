@@ -8,11 +8,12 @@
  * so the UI code is language-agnostic.
  */
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Volume2, CheckCircle2, XCircle, RefreshCw, Trophy, Keyboard,
   ArrowRight, ChevronDown, Headphones, Pencil, Globe, Settings,
+  AlertTriangle,
 } from 'lucide-react';
 import { TrainingView } from './components/TrainingView';
 import { PhoneticKeypad } from './components/PhoneticKeypad';
@@ -46,6 +47,50 @@ function saveLanguagePreferences(l1: string | null, l2: string) {
   } catch { /* ignore */ }
 }
 
+function isTextEntryTarget(target: EventTarget | null): target is HTMLElement {
+  if (!(target instanceof HTMLElement)) return false;
+  return target.isContentEditable
+    || target.tagName === 'INPUT'
+    || target.tagName === 'SELECT'
+    || target.tagName === 'TEXTAREA';
+}
+
+interface SpeechIssue {
+  title: string;
+  detail: string;
+  diagnostics: string[];
+}
+
+function getUserAgentSummary(): string {
+  const ua = navigator.userAgent;
+  if (/MicroMessenger/i.test(ua)) return 'WeChat WebView';
+  if (/QQ\//i.test(ua)) return 'QQ WebView';
+  if (/FBAN|FBAV|Instagram|Line\//i.test(ua)) return 'In-app WebView';
+  if (/CriOS/i.test(ua)) return 'Chrome on iOS';
+  if (/FxiOS/i.test(ua)) return 'Firefox on iOS';
+  if (/EdgiOS/i.test(ua)) return 'Edge on iOS';
+  if (/iPhone|iPad|iPod/i.test(ua) && /Safari/i.test(ua)) return 'Safari on iOS';
+  if (/Android/i.test(ua) && /SamsungBrowser/i.test(ua)) return 'Samsung Internet on Android';
+  if (/Android/i.test(ua) && /Chrome/i.test(ua)) return 'Chrome on Android';
+  if (/Android/i.test(ua) && /Firefox/i.test(ua)) return 'Firefox on Android';
+  return 'Unknown browser';
+}
+
+function buildSpeechDiagnostics(profile: LanguageProfile, voices: SpeechSynthesisVoice[]): string[] {
+  const synth = window.speechSynthesis;
+  const targetLangPrefix = profile.ttsLang.split('-')[0];
+  const matchingVoices = voices.filter(v => v.lang.startsWith(targetLangPrefix));
+
+  return [
+    `Browser: ${getUserAgentSummary()}`,
+    `speechSynthesis: ${synth ? 'available' : 'missing'}`,
+    `target language: ${profile.ttsLang}`,
+    `loaded voices: ${voices.length}`,
+    `matching voices: ${matchingVoices.length}`,
+    `userAgent: ${navigator.userAgent}`,
+  ];
+}
+
 // ── App ─────────────────────────────────────────────────────────
 
 export default function App() {
@@ -70,10 +115,12 @@ export default function App() {
   const [selectedPhoneme, setSelectedPhoneme] = useState<string | null>(null);
   const [mode, setMode] = useState<'spelling' | 'training'>('spelling');
   const [wordCount, setWordCount] = useState(10);
+  const topicSelectRef = useRef<HTMLSelectElement | null>(null);
 
   // ── Voice management ──────────────────────────────────────────
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<SpeechSynthesisVoice | null>(null);
+  const [speechIssue, setSpeechIssue] = useState<SpeechIssue | null>(null);
 
   // ── Phoneme stats (profile-driven) ────────────────────────────
   const phonemeStats = useMemo(
@@ -117,10 +164,12 @@ export default function App() {
 
     const loadVoices = () => {
       const available = getVoicesForLang(profile.ttsLang);
+      setVoices(available);
       if (available.length > 0) {
-        setVoices(available);
         const best = selectBestVoice(available, profile.ttsLang);
         if (best) setSelectedVoice(best);
+      } else {
+        setSelectedVoice(null);
       }
     };
 
@@ -196,10 +245,15 @@ export default function App() {
 
     const synth = window.speechSynthesis;
     if (!synth) {
-      alert('您的浏览器不支持语音合成功能');
+      setSpeechIssue({
+        title: '当前浏览器暂时不能播放语音',
+        detail: '请尝试用 Safari、Chrome 或 Samsung Internet 直接打开网页，避免微信、QQ、飞书等应用内浏览器。',
+        diagnostics: buildSpeechDiagnostics(profile, voices),
+      });
       return;
     }
 
+    setSpeechIssue(null);
     synth.cancel();
 
     const utterance = new SpeechSynthesisUtterance(currentItem.display);
@@ -210,39 +264,22 @@ export default function App() {
       utterance.voice = selectedVoice;
     }
 
-    utterance.onstart = () => setIsPlaying(true);
+    utterance.onstart = () => {
+      setSpeechIssue(null);
+      setIsPlaying(true);
+    };
     utterance.onend = () => setIsPlaying(false);
-    utterance.onerror = () => setIsPlaying(false);
-
-    synth.speak(utterance);
-  }, [currentItem, profile, isPlaying, selectedVoice]);
-
-  // Keyboard shortcuts for training mode
-  useEffect(() => {
-    if (mode !== 'training') return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA') {
-        return;
-      }
-      if (e.code === 'Space') {
-        e.preventDefault();
-        playAudio();
-      }
-      if (e.code === 'ArrowRight') {
-        e.preventDefault();
-        nextTrainingWord();
-      }
-      if (e.code === 'ArrowLeft') {
-        e.preventDefault();
-        prevTrainingWord();
-      }
+    utterance.onerror = (event) => {
+      setIsPlaying(false);
+      setSpeechIssue({
+        title: '语音播放失败',
+        detail: `浏览器返回了 ${event.error || 'unknown'}。请确认系统文字转语音已启用，并尝试换用 Safari/Chrome 后重新点击播放。`,
+        diagnostics: buildSpeechDiagnostics(profile, voices),
+      });
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [mode, playAudio, currentIndex, items.length]); // eslint-disable-line react-hooks/exhaustive-deps
+    synth.speak(utterance);
+  }, [currentItem, profile, isPlaying, selectedVoice, voices]);
 
   const handleCharInsert = (char: string) => {
     if (feedback !== 'neutral') return;
@@ -299,6 +336,135 @@ export default function App() {
       setCurrentIndex(prev => prev - 1);
     }
   };
+
+  useEffect(() => {
+    if (!profile || showOnboarding || items.length === 0) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isTyping = isTextEntryTarget(e.target);
+      const hasModifier = e.metaKey || e.ctrlKey || e.altKey;
+
+      if (hasModifier) return;
+
+      if (isTyping) {
+        if (mode === 'spelling' && e.key === 'Enter') {
+          e.preventDefault();
+          if (feedback === 'neutral' && userInput.trim()) {
+            checkAnswer();
+          } else if (feedback !== 'neutral') {
+            nextWord();
+          }
+        }
+        if (mode === 'spelling' && e.key === 'Escape' && feedback === 'neutral') {
+          e.preventDefault();
+          setUserInput('');
+        }
+        return;
+      }
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        playAudio();
+        return;
+      }
+
+      if (mode === 'spelling' && e.code === 'Enter') {
+        e.preventDefault();
+        if (feedback === 'neutral' && userInput.trim()) {
+          checkAnswer();
+        } else if (feedback !== 'neutral') {
+          nextWord();
+        }
+        return;
+      }
+
+      if (mode === 'spelling' && e.code === 'Backspace' && feedback === 'neutral') {
+        e.preventDefault();
+        handleDelete();
+        return;
+      }
+
+      if (mode === 'spelling' && e.code === 'Escape' && feedback === 'neutral') {
+        e.preventDefault();
+        setUserInput('');
+        return;
+      }
+
+      if (mode === 'training' && e.code === 'ArrowRight') {
+        e.preventDefault();
+        nextTrainingWord();
+        return;
+      }
+
+      if (mode === 'training' && e.code === 'ArrowLeft') {
+        e.preventDefault();
+        prevTrainingWord();
+        return;
+      }
+
+      if (e.code === 'KeyN') {
+        e.preventDefault();
+        newWordSet();
+        return;
+      }
+
+      if (e.code === 'Digit1') {
+        e.preventDefault();
+        changeDifficulty('basic');
+        return;
+      }
+
+      if (e.code === 'Digit2') {
+        e.preventDefault();
+        changeDifficulty('intermediate');
+        return;
+      }
+
+      if (e.code === 'Digit3') {
+        e.preventDefault();
+        changeDifficulty('advanced');
+        return;
+      }
+
+      if (e.code === 'KeyS') {
+        e.preventDefault();
+        handleModeChange('spelling');
+        return;
+      }
+
+      if (e.code === 'KeyT') {
+        e.preventDefault();
+        handleModeChange('training');
+        return;
+      }
+
+      if (mode === 'spelling' && e.code === 'KeyK') {
+        e.preventDefault();
+        setShowKeypad(prev => !prev);
+        return;
+      }
+
+      if (e.code === 'Slash') {
+        e.preventDefault();
+        topicSelectRef.current?.focus();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [
+    profile,
+    showOnboarding,
+    items.length,
+    mode,
+    feedback,
+    userInput,
+    playAudio,
+    currentIndex,
+    difficulty,
+    selectedPhoneme,
+    wordCount,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── Render ────────────────────────────────────────────────────
 
@@ -376,6 +542,7 @@ export default function App() {
           <div className="flex items-center gap-0.5 bg-slate-100 rounded-lg p-0.5">
             <button
               onClick={() => handleModeChange('spelling')}
+              title="拼写模式 (S)"
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                 mode === 'spelling'
                   ? 'bg-white text-indigo-600 shadow-sm'
@@ -387,6 +554,7 @@ export default function App() {
             </button>
             <button
               onClick={() => handleModeChange('training')}
+              title="训练模式 (T)"
               className={`flex items-center gap-1.5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                 mode === 'training'
                   ? 'bg-white text-indigo-600 shadow-sm'
@@ -430,6 +598,7 @@ export default function App() {
               <button
                 key={d}
                 onClick={() => changeDifficulty(d)}
+                title={`${d === 'basic' ? '基础' : d === 'intermediate' ? '进阶' : '挑战'} (${d === 'basic' ? '1' : d === 'intermediate' ? '2' : '3'})`}
                 className={`px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-md transition-all cursor-pointer ${
                   difficulty === d
                     ? 'bg-white text-indigo-600 shadow-sm'
@@ -448,8 +617,10 @@ export default function App() {
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Topic</span>
             <div className="relative">
               <select
+                ref={topicSelectRef}
                 value={selectedPhoneme ?? ''}
                 onChange={(e) => handlePhonemeChange(e.target.value || null)}
+                title="选择训练主题 (/)"
                 className="appearance-none bg-slate-100 border-none rounded-lg pl-2.5 pr-7 py-1.5 text-[11px] text-slate-600 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-200 max-w-[140px]"
               >
                 <option value="">
@@ -524,6 +695,40 @@ export default function App() {
 
         {/* Center: Training / Spelling */}
         <div className="flex-1 flex flex-col items-center justify-center">
+          <AnimatePresence>
+            {speechIssue && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                className="w-full max-w-3xl mb-5 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-900"
+              >
+                <div className="flex gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <h2 className="text-sm font-bold">{speechIssue.title}</h2>
+                        <p className="mt-1 text-xs leading-5 text-amber-800">{speechIssue.detail}</p>
+                      </div>
+                      <button
+                        onClick={() => setSpeechIssue(null)}
+                        className="text-xs font-bold uppercase tracking-widest text-amber-500 hover:text-amber-700 transition-colors cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                    <details className="mt-3 text-[11px] text-amber-700">
+                      <summary className="cursor-pointer font-bold uppercase tracking-widest">诊断信息</summary>
+                      <pre className="mt-2 whitespace-pre-wrap break-words font-mono leading-5">
+                        {speechIssue.diagnostics.join('\n')}
+                      </pre>
+                    </details>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
           {mode === 'training' ? (
             <TrainingView
               items={items}
@@ -548,6 +753,7 @@ export default function App() {
                       whileTap={{ scale: 0.95 }}
                       onClick={playAudio}
                       disabled={isPlaying}
+                      title="播放发音 (Space)"
                       className={`w-24 h-24 rounded-full flex items-center justify-center transition-all cursor-pointer ${
                         isPlaying ? 'bg-indigo-50 text-indigo-600' : 'bg-indigo-50 text-indigo-600 hover:bg-white shadow-sm border border-indigo-100'
                       }`}
@@ -597,6 +803,8 @@ export default function App() {
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && feedback === 'neutral' && userInput.trim()) {
                           checkAnswer();
+                        } else if (e.key === 'Enter' && feedback !== 'neutral') {
+                          nextWord();
                         }
                       }}
                       placeholder={
@@ -665,6 +873,7 @@ export default function App() {
                 <footer className="h-24 bg-white border-t border-slate-100 px-12 flex items-center justify-between shrink-0">
                   <button
                     onClick={() => setShowKeypad(!showKeypad)}
+                    title={showKeypad ? '隐藏键盘 (K)' : '显示键盘 (K)'}
                     className="flex items-center gap-3 text-slate-400 hover:text-indigo-600 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
                   >
                     <Keyboard className="w-5 h-5 flex-shrink-0" />
@@ -676,6 +885,7 @@ export default function App() {
                       <>
                         <button
                           onClick={handleDelete}
+                          title="删除最后一个字符 (Backspace)"
                           className="px-8 py-3 text-slate-400 hover:text-slate-900 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
                         >
                           Clear
@@ -683,6 +893,7 @@ export default function App() {
                         <button
                           onClick={checkAnswer}
                           disabled={!userInput.trim()}
+                          title="提交答案 (Enter)"
                           className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all disabled:opacity-30 disabled:shadow-none uppercase text-xs tracking-widest cursor-pointer"
                         >
                           Check Answer
@@ -691,6 +902,7 @@ export default function App() {
                     ) : (
                       <button
                         onClick={nextWord}
+                        title="下一题 (Enter)"
                         className="px-12 py-3 bg-indigo-600 text-white rounded-xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all flex items-center justify-center gap-3 uppercase text-xs tracking-widest cursor-pointer"
                       >
                         {currentIndex < items.length - 1 ? 'Next Challenge' : 'Complete Session'}
@@ -704,6 +916,7 @@ export default function App() {
               <div className="flex justify-between items-center px-4">
                 <button
                   onClick={newWordSet}
+                  title="换一组题 (N)"
                   className="flex items-center gap-2 text-slate-300 hover:text-indigo-400 transition-colors text-[10px] font-bold uppercase tracking-[0.2em] cursor-pointer"
                 >
                   <RefreshCw className="w-3 h-3" />

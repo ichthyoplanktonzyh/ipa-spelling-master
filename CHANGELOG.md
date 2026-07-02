@@ -4,6 +4,20 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-02 16:32 +0800
+
+### Added
+
+- Added the public GitHub Pages demo link to README and invited user feedback.
+- Added a non-blocking TTS troubleshooting panel with browser guidance and diagnostic details when speech playback is unavailable or fails.
+
+## 2026-07-02 16:19 +0800
+
+### Added
+
+- Added keyboard shortcuts for playback, answer submission, navigation, mode switching, difficulty switching, word-set refresh, keypad toggling, and topic focus.
+- Added tooltip hints to the related training controls.
+
 ## 2026-07-02 15:58 +0800
 
 ### Added
