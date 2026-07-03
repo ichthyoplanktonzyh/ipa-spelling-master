@@ -28,8 +28,8 @@
 - **文件**：`src/utils/pinyinParser.ts`
 - **脆弱原因**：拼音音节边界判定依赖声母表 + 韵母表 + 贪心匹配，边界情况多（如 "er"、"yuan"、"nv"）
 - **常见失败**：非标准拼写（如 "ng" 做韵母）、省写形式（如 "ju" 实际为 j+ü）
-- **安全修改方式**：添加测试后再改动；不改变现有声母/韵母表的结构
-- **测试覆盖**：❌ 无
+- **安全修改方式**：先更新 `src/utils/__tests__/pinyinParser.test.ts` fixture；不改变现有声母/韵母表的结构
+- **测试覆盖**：✅ tone-number、diacritics、ü/v、j/q/x+ü、zero-initial、er、neutral tone、round-trip
 
 ### 2.1 L1×L2 映射数据质量
 
@@ -68,16 +68,9 @@
 | 优先级 | 文件 | 风险 |
 |--------|------|------|
 | P0 | `scripts/validateData.ts` | 当前作为脚本运行，无单元测试覆盖各类失败样例 |
-| P0 | `src/utils/pinyinParser.ts` | 边界音节解析错误直接影响汉语训练 |
-| P0 | `src/utils/judge.ts` | 已有 nearMatch smoke，但 correct/incorrect/长度差异矩阵仍缺 |
-| P0 | `src/utils/ipaParser.ts` | 已有双字符音素 smoke，但变体标准化矩阵仍缺 |
-| P1 | `src/l1/difficultyMap.ts` | 排序/降级逻辑错误影响推荐 |
-| P1 | `src/profiles/zh.ts` | zhJudge 声调容错逻辑 |
-| P2 | `src/utils/minimalPairs.ts` | 题目生成和结果汇总缺少 fixture-based 单元测试 |
-| P2 | `src/utils/phonemeDetails.ts` | 音素详情 read model 的无 L1 降级、例词 fallback 和 minimal pair 聚合缺少单元测试 |
-| P2 | `src/components/MinimalPairView.tsx` | A/B 选择、完成状态和复盘 UI 缺少组件测试 |
-| P2 | `src/components/PhonemeDetailPanel.tsx` | 详情面板入口、空状态和 action 回调缺少组件测试 |
-| P2 | `src/components/OnboardingView.tsx` | L1===L2 阻断逻辑 |
+| P1 | `src/utils/voice.ts` | TTS voice ranking / preference persistence 缺少 fake Web Speech 单元测试 |
+| P1 | `src/App.tsx` | 顶层模式切换、训练完成到推荐展示的完整流程仍主要靠手动 QA |
+| P2 | `src/components/IPAKeypad.tsx` | 遗留死代码无测试，建议删除而不是补测 |
 
 ## 4. 依赖风险
 
@@ -87,6 +80,7 @@
 | motion (Framer Motion) | 包体积大 (~30KB gzip) | 增加构建产物大小 |
 | Tailwind CSS v4 | 仍在活跃迭代 | 升级可能有 breaking change |
 | localStorage | 隐私模式下可能抛异常 | 已 try/catch 处理 |
+| npm audit | 当前 `npm audit --omit=dev` 为 0 vulnerabilities | 继续在依赖升级后运行 |
 
 ## 5. 性能关注点
 

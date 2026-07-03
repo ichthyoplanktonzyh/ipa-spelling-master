@@ -75,6 +75,7 @@ components -> profiles -> utils / data / l1
 | `npm run dev` | start the Vite/Express dev server on port 3000 |
 | `npm run lint` | TypeScript check via `tsc --noEmit` |
 | `npm run test` | run Vitest unit tests |
+| `npm run test:coverage` | run Vitest with V8 coverage |
 | `npm run validate:data` | validate profiles, word banks, and L1/L2 maps |
 | `npx tsc --noEmit` | direct type check |
 | `npm run build` | production build plus bundled `server.ts` |
@@ -82,7 +83,7 @@ components -> profiles -> utils / data / l1
 | `npm run start` | run `dist/server.cjs` after build |
 | `npm run clean` | remove build artifacts |
 
-Unit tests use Vitest. Current coverage focuses on Phase 4.1 storage/recommendation behavior plus parser/judge smoke tests; see `.planning/codebase/TESTING.md`.
+Tests use Vitest plus Testing Library/jsdom. Current coverage includes parser/judge matrices, Training/Feedback utilities, Phase 4.1 storage/recommendation behavior, profile judge adapters, and major UI component smoke/interaction tests; see `.planning/codebase/TESTING.md`.
 
 ## 6. CI/CD And Deployment
 
@@ -147,10 +148,10 @@ curl -L https://ichthyoplanktonzyh.github.io/PhoneticMaster/ | sed -n '1,40p'
 Check `.planning/codebase/CONCERNS.md` before touching:
 
 - `src/App.tsx`, `src/components/OnboardingView.tsx`, `src/components/SmartRecommend.tsx` — L1/L2 entry flow is being adjusted for standalone training.
-- `src/utils/pinyinParser.ts` — pinyin syllable parsing has many edge cases.
-- `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences.
+- `src/utils/pinyinParser.ts` — pinyin syllable parsing has many edge cases; update fixtures before changing it.
+- `src/utils/judge.ts` — `nearMatch` behavior can be too lenient for large length differences; matrix tests cover current behavior.
 - `src/l1/zh_en.ts`, `src/l1/en_zh.ts` — L1/L2 mapping data is structurally validated but not linguistically exhaustive.
-- `src/utils/phonemeDetails.ts`, `src/components/PhonemeDetailPanel.tsx` — Phase 3.3 read model/UI; still lacks fixture-based unit/component tests.
+- `src/utils/phonemeDetails.ts`, `src/components/PhonemeDetailPanel.tsx` — Phase 3.3 read model/UI; fixture/component tests now cover the main paths.
 - `src/utils/recommendation.ts`, `src/utils/storage.ts` — Phase 4.1 local personalization; fixture-based unit tests exist and should be updated before changing ranking or persistence semantics.
 - `scripts/validateData.ts` — data validation gate has no fixture-based unit tests yet.
 - `.github/workflows/deploy.yml` + `vite.config.ts` — Pages deployment depends on the `/PhoneticMaster/` base path matching the repository name.

@@ -20,11 +20,15 @@ ipa-spelling/
 ├── scripts/                ← 本地维护/校验脚本
 ├── src/
 │   ├── components/         ← React UI 组件
+│   │   └── __tests__/      ← Testing Library 组件测试
 │   ├── data/               ← 词库数据
 │   ├── l1/                 ← L1×L2 难度映射
+│   │   └── __tests__/      ← difficulty map 单元测试
 │   ├── profiles/           ← 语言 Profile 定义
+│   │   └── __tests__/      ← profile registry / judge 集成测试
+│   ├── test/               ← Vitest setup
 │   ├── utils/              ← 工具函数（解析、判定、语音）
-│   │   └── __tests__/      ← Vitest 单元测试（utils fixture / smoke）
+│   │   └── __tests__/      ← Vitest 单元测试（utils fixtures）
 │   ├── App.tsx             ← 应用入口组件
 │   ├── index.css           ← 全局样式
 │   ├── main.tsx            ← React 渲染入口
@@ -67,6 +71,18 @@ ipa-spelling/
 | `SmartRecommend.tsx` | 可选 Coach 面板，展示本地历史 + L1-aware 推荐和清除个性化数据入口 | types, l1/difficultyMap, profiles |
 | `IPAKeypad.tsx` | 旧英语键盘（遗留，可删除） | — |
 
+### `src/components/__tests__/`
+
+| 文件 | 职责 | 覆盖 |
+|------|------|------|
+| `PhoneticKeypad.test.tsx` | Profile-driven 键盘组件测试 | Pinyin label/canonical insert |
+| `OnboardingView.test.tsx` | 首次选择流程组件测试 | L2 必选、L1 可选、L1===L2 阻断 |
+| `TrainingView.test.tsx` | 看词听音视图组件测试 | 当前题展示、播放/下一题/换题回调 |
+| `SessionResultView.test.tsx` | 结果页组件测试 | score、mistake review、推荐和历史 action |
+| `MinimalPairView.test.tsx` | A/B 听辨组件测试 | 空材料降级、播放、选择、完成按钮状态 |
+| `SmartRecommend.test.tsx` | Coach 面板组件测试 | 空状态、推荐/详情/清除回调 |
+| `PhonemeDetailPanel.test.tsx` | 音素详情抽屉组件测试 | 空状态、L1 insight、practice/listen/close |
+
 ### `src/data/`
 
 | 文件 | 职责 | 依赖 |
@@ -89,6 +105,12 @@ ipa-spelling/
 | `zh_en.ts` | 中文→英语难度映射 | types |
 | `en_zh.ts` | 英语→中文难度映射 | types |
 
+### `src/l1/__tests__/`
+
+| 文件 | 职责 | 覆盖 |
+|------|------|------|
+| `difficultyMap.test.ts` | L1 difficulty query 单元测试 | 排序、无映射降级、hard features |
+
 ### `src/profiles/`
 
 | 文件 | 职责 | 依赖 |
@@ -96,6 +118,12 @@ ipa-spelling/
 | `index.ts` | Profile 注册表 + L1 列表 | types, en, zh |
 | `en.ts` | 英语 LanguageProfile | types, ipaParser, judge, wordBank |
 | `zh.ts` | 汉语 LanguageProfile | types, pinyinParser, judge, zhWordBank |
+
+### `src/profiles/__tests__/`
+
+| 文件 | 职责 | 覆盖 |
+|------|------|------|
+| `profiles.test.ts` | Profile registry 和 judge adapter 集成测试 | en/zh 注册、English IPA judge、Chinese Pinyin judge |
 
 ### `src/utils/`
 
@@ -118,7 +146,18 @@ ipa-spelling/
 |------|------|------|
 | `recommendation.test.ts` | Phase 4.1 本地个性化 fixture 单测 | mastery 聚合、nearMatch/incorrect 音素归因、minimal pair、推荐降级/排序、training mode 不写入 |
 | `storage.test.ts` | localStorage repository 单测 | 读写失败静默降级、malformed JSON、clear、history limit、mastery load/save/clear |
-| `judge.test.ts` | parser/judge 冒烟测试 | IPA 双字符 token、phonemeJudge nearMatch |
+| `ipaParser.test.ts` | IPA parser fixture 单测 | 多字符音素、标记清理、变体标准化、unknown skip |
+| `pinyinParser.test.ts` | Pinyin parser fixture 单测 | tone-number、diacritics、ü/v、zero-initial、neutral tone |
+| `judgeMatrix.test.ts` | judge 判定矩阵 | exact、nearMatch、incorrect、长度差异、stringJudge |
+| `trainingSession.test.ts` | 训练 session 工具单测 | item identity、pickItems、answer replacement、scoring |
+| `minimalPairs.test.ts` | minimal pair 工具单测 | filtering、question cycling、answer/result summary |
+| `phonemeDetails.test.ts` | 音素详情 read model 单测 | L1/no-L1、examples、minimal pair 聚合 |
+
+### `src/test/`
+
+| 文件 | 职责 |
+|------|------|
+| `setup.ts` | Vitest setup，安装 jest-dom matcher 并在每个测试后 cleanup Testing Library DOM |
 
 ## 3. 命名约定
 
@@ -141,6 +180,7 @@ ipa-spelling/
 | 添加专项最小对立体数据 | `src/data/minimalPairBank.ts` | 新增 `MinimalPairSet` |
 | 添加新 L1×L2 映射 | `src/l1/{l1}_{l2}.ts` | `ja_en.ts` |
 | 添加新 UI 组件 | `src/components/{Name}.tsx` | `MinimalPairView.tsx` |
+| 添加组件测试 | `src/components/__tests__/{Name}.test.tsx` | `TrainingView.test.tsx` |
 | 添加新工具函数 | `src/utils/{name}.ts` | `statsCalculator.ts` |
 | 添加工具函数单元测试 | `src/utils/__tests__/{name}.test.ts` | `recommendation.test.ts` |
 | 添加本地浏览器存储 adapter | `src/utils/{name}.ts` | `storage.ts` |

@@ -6,13 +6,14 @@
 
 | 层 | 技术 | 版本 |
 |----|------|------|
-| UI 框架 | React | 19.0.1 |
+| UI 框架 | React | 19.2.6 |
 | 语言 | TypeScript | ~5.8.2 |
-| 构建 | Vite | 6.2.3 |
-| 样式 | Tailwind CSS | 4.1.14 |
-| 动画 | motion (Framer Motion) | 12.23.24 |
+| 构建 | Vite | 6.4.3 |
+| 样式 | Tailwind CSS | 4.3.2 |
+| 测试 | Vitest / Testing Library / jsdom | 4.1.9 / 16.3.2 / 29.1.1 |
+| 动画 | motion (Framer Motion) | 12.39.0 |
 | 图标 | lucide-react | 0.546.0 |
-| 服务器 | Express | 4.21.2 |
+| 服务器 | Express | 4.22.2 |
 | 包管理 | npm | — |
 | 模块系统 | ESM (`"type": "module"`) | — |
 
@@ -40,7 +41,10 @@
 | @types/express | Express 类型声明 |
 | @types/node | Node.js 类型声明 |
 | autoprefixer | CSS 前缀 |
-| vitest | Vite/TypeScript 兼容的轻量单元测试框架 |
+| vitest | Vite/TypeScript 兼容的单元/组件测试框架 |
+| @vitest/coverage-v8 | V8 coverage provider |
+| @testing-library/react / user-event / jest-dom | React 组件行为测试 |
+| jsdom | Vitest DOM 测试环境 |
 
 ## 3. Web API 依赖
 
@@ -70,5 +74,7 @@ MVP 目标是纯前端静态发布。`server.ts` / Express 用于本地开发、
 | `npm run preview` | 同 start |
 | `npm run lint` | TypeScript 类型检查 (tsc --noEmit) |
 | `npm run test` | 运行 Vitest 单元测试 |
+| `npm run test:watch` | 以 watch 模式运行 Vitest |
+| `npm run test:coverage` | 运行 Vitest 并生成 V8 coverage 报告 |
 | `npm run validate:data` | 校验 profile、词库和 L1/L2 映射数据一致性 |
 | `npm run clean` | 清理 dist/ |

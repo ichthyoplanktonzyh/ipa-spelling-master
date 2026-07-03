@@ -43,17 +43,29 @@ const TONE_MARK_MAP: Record<string, string> = {
  * with the plain vowel + tone number.
  */
 function diacriticsToNumbers(pinyin: string): string {
-  let result = '';
-  for (const ch of pinyin) {
-    if (TONE_MARK_MAP[ch]) {
-      result += TONE_MARK_MAP[ch];
-    } else if (ch === 'ü') {
-      result += 'v'; // ü → v in tone-number pinyin
-    } else {
-      result += ch;
-    }
-  }
-  return result;
+  return pinyin
+    .split(/(\s+)/)
+    .map(part => {
+      if (/^\s+$/.test(part)) return part;
+
+      let body = '';
+      let tone = '';
+
+      for (const ch of part) {
+        const mapped = TONE_MARK_MAP[ch];
+        if (mapped) {
+          body += mapped[0];
+          tone = mapped[1];
+        } else if (ch === 'ü') {
+          body += 'v'; // ü → v in tone-number pinyin
+        } else {
+          body += ch;
+        }
+      }
+
+      return tone && !/[1-5]$/.test(body) ? `${body}${tone}` : body;
+    })
+    .join('');
 }
 
 // ── Initials (声母) ─────────────────────────────────────────────

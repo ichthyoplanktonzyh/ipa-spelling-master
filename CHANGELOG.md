@@ -4,6 +4,20 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-03 16:10 +0800
+
+### Added
+
+- Expanded Vitest into a broader unit/component test system with Testing Library, jsdom, and V8 coverage.
+- Added parser, judge, profile, difficulty-map, training-session, minimal-pair, phoneme-detail, storage, recommendation, and major component tests.
+- Added `npm run test:watch` and `npm run test:coverage`.
+
+### Changed
+
+- Fixed Pinyin diacritic normalization so tone marks convert to canonical tone-number syllables like `hao3` instead of `ha3o`.
+- Updated Tailwind/Vitest testing dependencies and cleared production dependency audit findings.
+- Updated testing, concerns, structure, stack, and agent docs for the expanded test system.
+
 ## 2026-07-03 11:52 +0800
 
 ### Added
