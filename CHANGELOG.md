@@ -4,6 +4,18 @@ All notable project changes should be recorded here before each commit.
 
 Timestamp format: `YYYY-MM-DD HH:mm Z` using local project time, precise to the minute.
 
+## 2026-07-15 09:31 +0800
+
+### Added
+
+- Added Phase 5.1-5.6 planning and context directories for content foundations, trusted audio and accent variants, guided phoneme lessons, local recording/review, data-driven exercises, and a new-language pilot.
+- Added stable M5 requirements for content provenance, guided learning, audio fallback, accent variants, local recording, and reusable exercise templates.
+
+### Changed
+
+- Reframed M5 from immediate language expansion to trusted content and practice-experience expansion, with the new-language pilot after the shared interfaces stabilize.
+- Documented the boundary that iSpeakerReact can inspire product mechanisms, but its Oxford-derived course and media assets must not be copied without verified redistribution rights.
+
 ## 2026-07-03 16:10 +0800
 
 ### Added

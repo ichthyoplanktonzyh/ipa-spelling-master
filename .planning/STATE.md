@@ -1,26 +1,26 @@
 ---
 gsd_state_version: 1.0
-milestone: M4
-milestone_name: 本地个性化 + L1-aware 教练
-status: completed
-last_updated: "2026-07-03T11:39:00+08:00"
+milestone: M5
+milestone_name: 可信内容与练习体验扩展
+status: planned
+last_updated: "2026-07-15T09:31:00+08:00"
 progress:
-  total_phases: 1
-  completed_phases: 1
+  total_phases: 6
+  completed_phases: 0
   in_progress_phases: 0
 ---
 
 # PhoneticMaster — 项目活记忆
 
-> 最后更新：2026-07-03
-> 更新原因：Phase 4.1 Local Personalization 完成，M4 本地个性化 MVP 收口
+> 最后更新：2026-07-15
+> 更新原因：参考 iSpeakerReact 调整并建立 M5 可信内容与练习体验 phases
 
 ## 当前位置
 
 | 维度 | 值 |
 |------|------|
-| 里程碑 | M4 — 本地个性化 + L1-aware 教练（已完成） |
-| 阶段 | 下一步：M5 新语言与内容扩展 |
+| 里程碑 | M5 — 可信内容与练习体验扩展（已规划） |
+| 阶段 | 下一步：Phase 5.1 Content Foundation |
 | 分支 | `main` (ipa-spelling) |
 | 版本 | v1.3 M4 complete |
 
@@ -87,6 +87,48 @@ progress:
 - **状态**：已完成（2026-07-03）
 - **计划文件**：`.planning/phases/4.1-local-personalization/4.1-PLAN.md`
 - **总结文件**：`.planning/phases/4.1-local-personalization/4.1-SUMMARY.md`
+
+### Phase 5.1: Content Foundation 🧭
+
+- **目标**：建立学习内容、媒体来源与授权元数据的通用契约和校验门禁
+- **状态**：已规划，待开始
+- **计划文件**：`.planning/phases/5.1-content-foundation/5.1-PLAN.md`
+- **上下文文件**：`.planning/phases/5.1-content-foundation/5.1-CONTEXT.md`
+
+### Phase 5.2: Trusted Audio & Accent Variants 🧭
+
+- **目标**：标准音频优先、TTS 安全降级和语言自定义口音变体
+- **状态**：已规划，依赖 5.1
+- **计划文件**：`.planning/phases/5.2-trusted-audio-accents/5.2-PLAN.md`
+- **上下文文件**：`.planning/phases/5.2-trusted-audio-accents/5.2-CONTEXT.md`
+
+### Phase 5.3: Guided Phoneme Lessons 🧭
+
+- **目标**：将音素详情深化为示范、上下文例词和专项练习的连续短课程
+- **状态**：已规划，依赖 5.1、5.2
+- **计划文件**：`.planning/phases/5.3-guided-phoneme-lessons/5.3-PLAN.md`
+- **上下文文件**：`.planning/phases/5.3-guided-phoneme-lessons/5.3-CONTEXT.md`
+
+### Phase 5.4: Local Record & Review 🧭
+
+- **目标**：用 MediaRecorder + IndexedDB 提供本地录音、回放和删除
+- **状态**：已规划，依赖 5.3
+- **计划文件**：`.planning/phases/5.4-local-record-review/5.4-PLAN.md`
+- **上下文文件**：`.planning/phases/5.4-local-record-review/5.4-CONTEXT.md`
+
+### Phase 5.5: Data-driven Exercise Templates 🧭
+
+- **目标**：建立共享练习模型并交付至少两种新的声音感知练习
+- **状态**：已规划，依赖 5.1；可与 5.4 分别推进
+- **计划文件**：`.planning/phases/5.5-data-driven-exercises/5.5-PLAN.md`
+- **上下文文件**：`.planning/phases/5.5-data-driven-exercises/5.5-CONTEXT.md`
+
+### Phase 5.6: New Language Pilot 🧭
+
+- **目标**：接入第 3 种语言，验证内容、媒体和练习能力的可选扩展边界
+- **状态**：已规划，依赖 5.1-5.5 的接口稳定
+- **计划文件**：`.planning/phases/5.6-new-language-pilot/5.6-PLAN.md`
+- **上下文文件**：`.planning/phases/5.6-new-language-pilot/5.6-CONTEXT.md`
 
 ## 已完成历史
 
@@ -260,6 +302,7 @@ progress:
 24. **2026-07-02** — 产品焦点暂停继续推进 Phase 3.3，先进入 Research R1 用户需求调研，验证训练方式、TTS 信任、反馈解释和 L1-aware 推荐价值
 25. **2026-07-03** — Phase 3.3 恢复产品主线并完成：音素详情作为 Feedback/Coaching read model，不要求 L1，也不改变 Training Core
 26. **2026-07-03** — Phase 4.1 完成：本地 mastery 成为 Learner Progress 聚合，推荐排序融合历史正确率与 L1 difficulty level；SmartRecommend 降级为手动打开的 Coach 层
+27. **2026-07-15** — M5 路线调整：先借鉴 iSpeakerReact 建立可信内容、标准音频、引导式课程、本地录音和数据驱动练习，再进行新语言试点；不复制授权不明的课程/媒体，不在 M5 引入发音评分
 
 ## 当前阻塞项
 
@@ -267,11 +310,12 @@ progress:
 
 ## 下一步工作
 
-建议进入 M5 新语言与内容扩展：
+进入 Phase 5.1 Content Foundation：
 
-- 方向：选择第 3 个目标语言（如日语或西语）并验证 Profile-driven 扩展路径
-- 注意：新语言应继续只通过 profile + word bank + 可选 L1 map 接入，不修改训练 UI 框架
-- 技术债：为 `src/utils/recommendation.ts` 和 `src/utils/storage.ts` 添加 fixture-based 单元测试仍建议优先排入后续
+- 先盘点现有 `TrainingItem`、`PhonemeDetail`、minimal pair 和音频字段，避免重复模型
+- 定义来源、许可证、可再分发状态和 profile-facing 内容查询接口
+- 用英语/中文小规模 fixture 验证同一契约与缺失内容降级
+- 新语言选型推迟到 5.6，避免在内容接口尚未稳定时引入第三套特例
 
 ## 指标
 
